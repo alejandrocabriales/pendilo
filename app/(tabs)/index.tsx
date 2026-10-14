@@ -1,21 +1,19 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, SectionList, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { colors, size, space, type } from '../../theme/tokens';
+import { colors, radius, size, space, type } from '../../theme/tokens';
 import { useAppStore } from '../../state/useAppStore';
 import { PendiloMascot } from '../../components/PendiloMascot';
 import { TaskCard } from '../../components/TaskCard';
-import { ProgressIndicator } from '../../components/ProgressIndicator';
-import { DayCloseRing } from '../../components/DayCloseRing';
 import { DayDoneCard } from '../../components/DayDoneCard';
 import { EmptyState } from '../../components/EmptyState';
-import { todayISO, nowMinutes } from '../../lib/date';
+import { ProgressIndicator } from '../../components/ProgressIndicator';
+import { todayISO, addDays } from '../../lib/date';
+import { computeDailyStreak } from '../../lib/streak';
 import { copy, pendingHeader } from '../../data/copy';
 import { seedUserName } from '../../data/mocks/seed';
 import type { Task } from '../../types/domain';
-
-type Section = { key: string; title: string; data: Task[]; collapsible?: boolean };
 
 export default function HoyScreen() {
   const insets = useSafeAreaInsets();
@@ -26,34 +24,41 @@ export default function HoyScreen() {
   const clearIsNew = useAppStore((s) => s.clearIsNew);
   const devRestoreMockData = useAppStore((s) => s.devRestoreMockData);
   const addQuickTask = useAppStore((s) => s.addQuickTask);
+  const setQuickAddOpen = useAppStore((s) => s.setQuickAddOpen);
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [completedOpen, setCompletedOpen] = useState(true);
   const [completedRevealed, setCompletedRevealed] = useState(false);
 
   const today = todayISO();
-  const nowMin = nowMinutes();
 
   const todaysTasks = useMemo(() => tasks.filter((t) => t.date === today), [tasks, today]);
-  const pending = todaysTasks.filter((t) => t.status === 'pending');
   const done = todaysTasks.filter((t) => t.status === 'done');
-  const ahora = pending.filter((t) => t.minutes != null && t.minutes >= nowMin && t.minutes < nowMin + 60);
-  const masTarde = pending.filter((t) => !ahora.includes(t));
+  const pending = useMemo(
+    () =>
+      todaysTasks
+        .filter((t) => t.status === 'pending')
+        .sort((a, b) => (a.minutes ?? Infinity) - (b.minutes ?? Infinity)),
+    [todaysTasks]
+  );
   const allDone = todaysTasks.length > 0 && pending.length === 0;
 
-  const sections: Section[] = [];
-  if (ahora.length > 0) sections.push({ key: 'ahora', title: 'Ahora', data: ahora });
-  if (masTarde.length > 0) sections.push({ key: 'mas-tarde', title: 'Más tarde', data: masTarde });
-  if (done.length > 0) sections.push({ key: 'completadas', title: 'Completadas', data: completedOpen ? done : [], collapsible: true });
+  const streakDays = useMemo(() => computeDailyStreak(tasks, today).current, [tasks, today]);
+  const tomorrow = useMemo(() => addDays(today, 1), [today]);
+  const tomorrowCount = useMemo(
+    () => tasks.filter((t) => t.date === tomorrow && t.status === 'pending').length,
+    [tasks, tomorrow]
+  );
 
   const headerMessage =
-    todaysTasks.length === 0
-      ? copy.header.empty
-      : pending.length === 0
-        ? copy.header.allDone
-        : pendingHeader(pending.length);
+    todaysTasks.length === 0 ? copy.header.empty : allDone ? copy.header.allDone : pendingHeader(pending.length);
 
   const mascotMood = allDone ? 'celebrating' : 'resting';
+
+  const showPendingHeader = todaysTasks.length > 0 && !allDone;
+  const streakMessage =
+    streakDays > 0
+      ? `Racha de ${streakDays} día${streakDays === 1 ? '' : 's'}: haz una y la mantienes.`
+      : 'Completa una tarea hoy para empezar tu racha.';
 
   const renderTaskCard = (item: Task) => (
     <View key={item.id} style={styles.cardWrap}>
@@ -61,6 +66,7 @@ export default function HoyScreen() {
         task={item}
         expanded={expandedId === item.id}
         isOverdue={false}
+        isNext={pending[0]?.id === item.id}
         nowDate={today}
         onToggleExpand={() => {
           setExpandedId((id) => (id === item.id ? null : item.id));
@@ -74,97 +80,104 @@ export default function HoyScreen() {
     </View>
   );
 
+  const completedToggle =
+    done.length > 0 ? (
+      <Pressable
+        onPress={() => setCompletedRevealed((v) => !v)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: completedRevealed }}
+        style={styles.completedToggle}
+      >
+        <Text style={styles.completedToggleLabel}>
+          {completedRevealed ? 'Ocultar' : 'Ver'} completadas ({done.length})
+        </Text>
+      </Pressable>
+    ) : null;
+
+  const devButton = __DEV__ ? (
+    <Pressable onPress={devRestoreMockData} style={styles.devButton}>
+      <Text style={styles.devButtonLabel}>Restaurar datos de ejemplo (dev)</Text>
+    </Pressable>
+  ) : null;
+
   return (
     <View style={[styles.container, { paddingTop: insets.top + space[4] }]}>
-      <View style={styles.header}>
-        <PendiloMascot mood={mascotMood} size={64} />
-        <View style={styles.headerText}>
-          <Text style={styles.greeting}>{copy.greeting.replace('Manu', seedUserName)}</Text>
-          <Text style={styles.message} accessibilityLiveRegion="polite">
+      {showPendingHeader ? (
+        <View style={styles.headerCentered}>
+          <Text style={styles.greetingCentered}>{copy.greeting.replace('Manu', seedUserName)}</Text>
+          <Text style={styles.messageCentered} accessibilityLiveRegion="polite">
             {headerMessage}
           </Text>
         </View>
-      </View>
+      ) : (
+        <View style={styles.header}>
+          <PendiloMascot mood={mascotMood} size={64} />
+          <View style={styles.headerText}>
+            <Text style={styles.greeting}>{copy.greeting.replace('Manu', seedUserName)}</Text>
+            <Text style={styles.message} accessibilityLiveRegion="polite">
+              {headerMessage}
+            </Text>
+          </View>
+        </View>
+      )}
 
-      {todaysTasks.length > 0 ? (
-        <View style={styles.progressWrap}>
+      {showPendingHeader ? (
+        <View style={styles.progressBlock}>
           <ProgressIndicator
             segments={todaysTasks.length}
             done={done.length}
-            label={`${done.length} de ${todaysTasks.length} hechas hoy`}
+            accessibilityLabel={`${done.length} de ${todaysTasks.length} tareas completadas`}
           />
-        </View>
-      ) : null}
-
-      {todaysTasks.length > 0 ? (
-        <View style={styles.ringWrap}>
-          <DayCloseRing tasks={tasks} doneToday={done.length} totalToday={todaysTasks.length} />
+          <View style={styles.statsRow}>
+            <Text style={styles.statsCount}>{`${done.length} de ${todaysTasks.length}\nhechas`}</Text>
+            <Text style={styles.statsStreak}>{streakMessage}</Text>
+          </View>
         </View>
       ) : null}
 
       {todaysTasks.length === 0 ? (
         <>
-          <EmptyState mood="resting" title="Nada por ahora" body={copy.empty.today} />
-          {__DEV__ ? (
-            <Pressable onPress={devRestoreMockData} style={styles.devButton}>
-              <Text style={styles.devButtonLabel}>Restaurar datos de ejemplo (dev)</Text>
-            </Pressable>
-          ) : null}
+          <EmptyState mood="resting" title="Tu día está libre" body={copy.empty.today} />
+          <View style={styles.hintCard}>
+            <Text style={styles.hintLabel}>Prueba decir</Text>
+            <Text style={styles.hintBody}>{copy.empty.todayExample}</Text>
+          </View>
+          {devButton}
         </>
       ) : allDone ? (
         <ScrollView style={styles.listFlex} contentContainerStyle={styles.doneContent}>
-          <DayDoneCard onMic={() => router.push('/(voz)/escuchando')} onAddTask={addQuickTask} />
-
-          {done.length > 0 ? (
-            <Pressable
-              onPress={() => setCompletedRevealed((v) => !v)}
-              accessibilityRole="button"
-              accessibilityState={{ expanded: completedRevealed }}
-              style={styles.completedToggle}
-            >
-              <Text style={styles.completedToggleLabel}>
-                {completedRevealed ? 'Ocultar' : 'Ver'} completadas ({done.length})
-              </Text>
-            </Pressable>
-          ) : null}
-
+          <DayDoneCard
+            onMic={() => router.push('/(voz)/escuchando')}
+            onOpenWrite={() => setQuickAddOpen(true)}
+            onAddIdea={addQuickTask}
+            streakDays={streakDays}
+            tomorrowCount={tomorrowCount}
+          />
+          {completedToggle}
           {completedRevealed ? done.map(renderTaskCard) : null}
-
-          {__DEV__ ? (
-            <Pressable onPress={devRestoreMockData} style={styles.devButton}>
-              <Text style={styles.devButtonLabel}>Restaurar datos de ejemplo (dev)</Text>
-            </Pressable>
-          ) : null}
+          {devButton}
         </ScrollView>
       ) : (
-        <SectionList
+        <FlatList
           style={styles.listFlex}
-          sections={sections}
+          data={pending}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          ListFooterComponent={
-            __DEV__ ? (
-              <Pressable onPress={devRestoreMockData} style={styles.devButton}>
-                <Text style={styles.devButtonLabel}>Restaurar datos de ejemplo (dev)</Text>
-              </Pressable>
-            ) : null
-          }
-          renderSectionHeader={({ section }) => (
-            <Pressable
-              onPress={section.collapsible ? () => setCompletedOpen((v) => !v) : undefined}
-              accessibilityRole={section.collapsible ? 'button' : undefined}
-              accessibilityState={section.collapsible ? { expanded: completedOpen } : undefined}
-              style={styles.sectionHeader}
-            >
-              <Text style={styles.sectionTitle}>
-                {section.title} {section.collapsible ? `(${done.length})` : ''}
-              </Text>
-              {section.collapsible ? (
-                <Text style={styles.sectionToggle}>{completedOpen ? 'Ocultar' : 'Mostrar'}</Text>
-              ) : null}
-            </Pressable>
-          )}
           renderItem={({ item }) => renderTaskCard(item)}
+          ListFooterComponent={
+            <>
+              <Pressable
+                onPress={() => setQuickAddOpen(true)}
+                accessibilityRole="button"
+                style={styles.addMoreLink}
+              >
+                <Text style={styles.addMoreLinkLabel}>+ Agregar algo más</Text>
+              </Pressable>
+              {completedToggle}
+              {completedRevealed ? done.map(renderTaskCard) : null}
+              {devButton}
+            </>
+          }
         />
       )}
     </View>
@@ -173,25 +186,36 @@ export default function HoyScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.paper, paddingHorizontal: space[5] },
-  header: { flexDirection: 'row', alignItems: 'center', gap: space[4], marginBottom: space[4] },
+  header: { flexDirection: 'row', alignItems: 'center', gap: space[4], marginBottom: space[5] },
   headerText: { flex: 1, gap: space[1] },
   greeting: { ...type.title, color: colors.ink[1] },
   message: { ...type.body, color: colors.ink[2] },
-  progressWrap: { marginBottom: space[5] },
-  ringWrap: { marginBottom: space[5] },
+  headerCentered: { alignItems: 'center', gap: space[1], marginBottom: space[5] },
+  greetingCentered: { ...type.titleLg, color: colors.ink[1], textAlign: 'center' },
+  messageCentered: { ...type.body, color: colors.ink[2], textAlign: 'center' },
+  progressBlock: { gap: space[3], marginBottom: space[5] },
+  statsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: space[4] },
+  statsCount: { ...type.section, color: colors.ink[1] },
+  statsStreak: { ...type.bodySm, color: colors.ink[3], textAlign: 'right', flexShrink: 1 },
   listFlex: { flex: 1 },
   list: { paddingBottom: space[12] + size.mic, gap: space[3] },
   doneContent: { paddingBottom: space[12] + size.mic, paddingTop: space[2], gap: space[3] },
   completedToggle: { alignSelf: 'center', paddingVertical: space[2] },
   completedToggleLabel: { ...type.caption, color: colors.brand[700] },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: space[2],
+  addMoreLink: { alignSelf: 'center', paddingVertical: space[3] },
+  addMoreLinkLabel: { ...type.card, color: colors.brand[700] },
+  hintCard: {
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.suggest.fg,
+    backgroundColor: colors.suggest.bg,
+    borderRadius: radius.card,
+    padding: space[4],
+    gap: space[1],
+    marginTop: space[4],
   },
-  sectionTitle: { ...type.section, color: colors.ink[1] },
-  sectionToggle: { ...type.caption, color: colors.brand[700] },
+  hintLabel: { ...type.caption, color: colors.suggest.fg },
+  hintBody: { ...type.body, color: colors.ink[1] },
   cardWrap: { marginBottom: space[3] },
   devButton: { paddingVertical: space[3], alignItems: 'center', marginBottom: size.mic },
   devButtonLabel: { ...type.caption, color: colors.ink[4] },

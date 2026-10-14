@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Tabs, router } from 'expo-router';
 import { BottomNavigation, TabKey } from '../../components/BottomNavigation';
 import { QuickAddSheet } from '../../components/QuickAddSheet';
@@ -8,7 +8,8 @@ const ROUTE_TO_TAB: Record<string, TabKey> = { index: 'hoy', semana: 'semana', p
 const TAB_TO_ROUTE: Record<TabKey, string> = { hoy: 'index', semana: 'semana', progreso: 'progreso' };
 
 export default function TabsLayout() {
-  const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const quickAddOpen = useAppStore((s) => s.quickAddOpen);
+  const setQuickAddOpen = useAppStore((s) => s.setQuickAddOpen);
   const addQuickTask = useAppStore((s) => s.addQuickTask);
 
   return (

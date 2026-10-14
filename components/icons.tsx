@@ -80,29 +80,10 @@ export function CloseIcon({ size = 22, color }: IconProps) {
   );
 }
 
-export function ChestIcon({ size = 20, color }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Rect x={3} y={10} width={18} height={10} rx={2} stroke={color} strokeWidth={2} />
-      <Path d="M3 10a9 5 0 0 1 18 0" stroke={color} strokeWidth={2} />
-      <Line x1={12} y1={13} x2={12} y2={16} stroke={color} strokeWidth={2} strokeLinecap="round" />
-    </Svg>
-  );
-}
-
 export function ShieldIcon({ size = 16, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" stroke={color} strokeWidth={2} strokeLinejoin="round" />
-    </Svg>
-  );
-}
-
-export function PlusIcon({ size = 22, color }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Line x1={12} y1={5} x2={12} y2={19} stroke={color} strokeWidth={2} strokeLinecap="round" />
-      <Line x1={5} y1={12} x2={19} y2={12} stroke={color} strokeWidth={2} strokeLinecap="round" />
     </Svg>
   );
 }

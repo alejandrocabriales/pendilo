@@ -95,46 +95,6 @@ export function buildWeekCircles(tasks: Task[], todayIso: string): DayCircle[] {
   });
 }
 
-export interface DayBar {
-  date: string;
-  count: number;
-  isToday: boolean;
-  isFuture: boolean;
-}
-
-/** Barras L..D de la semana actual con la cantidad de tareas completadas por día. */
-export function buildWeekBars(tasks: Task[], todayIso: string): DayBar[] {
-  const counts = doneCountByDate(tasks);
-  const monday = startOfWeek(todayIso);
-  return Array.from({ length: 7 }, (_, i) => {
-    const date = addDays(monday, i);
-    return { date, count: counts.get(date) ?? 0, isToday: date === todayIso, isFuture: date > todayIso };
-  });
-}
-
-/** Total de tareas completadas en la semana que empieza en `weekStartIso`. */
-export function weekTotal(tasks: Task[], weekStartIso: string): number {
-  const counts = doneCountByWeek(tasks);
-  return counts.get(weekStartIso) ?? 0;
-}
-
-export interface WeekdayChest {
-  completed: number;
-  target: number;
-}
-
-/** "Cofre del domingo": cuántos días de lunes a viernes ya tienen al menos 1 tarea hecha. */
-export function weekdayChestProgress(tasks: Task[], todayIso: string): WeekdayChest {
-  const counts = doneCountByDate(tasks);
-  const monday = startOfWeek(todayIso);
-  let completed = 0;
-  for (let i = 0; i < 5; i += 1) {
-    const date = addDays(monday, i);
-    if (date <= todayIso && (counts.get(date) ?? 0) > 0) completed += 1;
-  }
-  return { completed, target: 5 };
-}
-
 export interface WeeklyActivity {
   /** Racha de semanas consecutivas (incluida la actual si ya tiene algo). */
   currentStreakWeeks: number;

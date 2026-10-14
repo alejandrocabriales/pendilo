@@ -12,6 +12,8 @@ interface TaskCardProps {
   expanded: boolean;
   nowDate?: string;
   isOverdue: boolean;
+  /** La próxima tarea pendiente del día: se resalta con borde y la etiqueta "Siguiente". */
+  isNext?: boolean;
   onToggleExpand: () => void;
   onToggleDone: () => void;
   onPostpone: () => void;
@@ -26,6 +28,7 @@ export function TaskCard({
   expanded,
   nowDate = todayISO(),
   isOverdue,
+  isNext = false,
   onToggleExpand,
   onToggleDone,
   onPostpone,
@@ -33,6 +36,7 @@ export function TaskCard({
   onChangeMinutes,
 }: TaskCardProps) {
   const done = task.status === 'done';
+  const highlightNext = isNext && !done;
   const timeLabel = task.minutes != null ? minutesToLabel(task.minutes) : 'Sin hora';
 
   const dayOptions = DAY_OFFSETS.map((offset) => {
@@ -41,11 +45,11 @@ export function TaskCard({
   });
 
   return (
-    <View style={[styles.card, done ? styles.cardDone : null]}>
+    <View style={[styles.card, done ? styles.cardDone : null, highlightNext ? styles.cardNext : null]}>
       <Pressable
         onPress={onToggleExpand}
         accessibilityRole="button"
-        accessibilityLabel={`${task.title}, ${timeLabel}${task.isNew ? ', nueva' : ''}${isOverdue ? ', vencida' : ''}`}
+        accessibilityLabel={`${task.title}, ${timeLabel}${task.isNew ? ', nueva' : ''}${isOverdue ? ', vencida' : ''}${highlightNext ? ', siguiente' : ''}`}
         style={styles.row}
       >
         <Pressable
@@ -73,6 +77,11 @@ export function TaskCard({
             {task.isNew ? <Text style={styles.badgeNew}>Nueva</Text> : null}
             {isOverdue && !done ? <Text style={styles.badgeOverdue}>⚠ Vencida</Text> : null}
           </View>
+          {highlightNext ? (
+            <View style={styles.nextBadge}>
+              <Text style={styles.nextBadgeLabel}>Siguiente</Text>
+            </View>
+          ) : null}
         </View>
       </Pressable>
 
@@ -103,10 +112,13 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: space[4],
     gap: space[3],
   },
   cardDone: { backgroundColor: colors.paper },
+  cardNext: { borderWidth: 2, borderColor: colors.brand[700] },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: space[3] },
   checkbox: {
     width: size.checkbox,
@@ -127,6 +139,14 @@ const styles = StyleSheet.create({
   meta: { ...type.meta, color: colors.ink[3] },
   badgeNew: { ...type.caption, color: colors.brand[700] },
   badgeOverdue: { ...type.caption, color: colors.danger.fg },
+  nextBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.panel,
+    borderRadius: radius.chip,
+    paddingHorizontal: space[3],
+    paddingVertical: space[1],
+  },
+  nextBadgeLabel: { ...type.caption, color: colors.brand[700] },
   expanded: { gap: space[4], paddingTop: space[2], borderTopWidth: 1, borderTopColor: colors.line },
   expandedRow: { gap: space[2] },
   expandedLabel: { ...type.caption, color: colors.ink[3] },

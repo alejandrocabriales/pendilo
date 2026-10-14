@@ -6,17 +6,19 @@ interface ProgressIndicatorProps {
   segments: number;
   done: number;
   variant?: 'day' | 'goal';
-  /** Texto numérico, siempre visible (sección 8 del handoff: nunca comunicar solo con color). */
-  label: string;
+  /** Texto numérico, visible debajo de la barra (sección 8 del handoff: nunca comunicar solo con color). */
+  label?: string;
+  /** Usar cuando el conteo ya se muestra aparte y la barra no necesita su propio texto. */
+  accessibilityLabel?: string;
 }
 
-export function ProgressIndicator({ segments, done, variant = 'day', label }: ProgressIndicatorProps) {
+export function ProgressIndicator({ segments, done, variant = 'day', label, accessibilityLabel }: ProgressIndicatorProps) {
   const barHeight = variant === 'goal' ? size.progressBig : size.progress;
   return (
     <View
       accessibilityRole="progressbar"
       accessibilityValue={{ min: 0, max: segments, now: done }}
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label ?? `${done} de ${segments}`}
     >
       <View style={[styles.track, { height: barHeight }]}>
         {Array.from({ length: segments }, (_, i) => (
@@ -32,7 +34,7 @@ export function ProgressIndicator({ segments, done, variant = 'day', label }: Pr
           />
         ))}
       </View>
-      <Text style={styles.label}>{label}</Text>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
     </View>
   );
 }

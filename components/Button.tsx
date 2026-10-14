@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, Text, StyleSheet, ActivityIndicator, GestureResponderEvent } from 'react-native';
 import { colors, radius, size, type, space } from '../theme/tokens';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'flat';
+export type ButtonVariant = 'primary' | 'secondary' | 'flat' | 'outline';
 
 interface ButtonProps {
   label: string;
@@ -55,6 +55,7 @@ function variantStyle(variant: ButtonVariant, isDisabled?: boolean) {
   if (isDisabled) return { backgroundColor: colors.disabled.bg };
   if (variant === 'primary') return { backgroundColor: colors.action.bg };
   if (variant === 'secondary') return { backgroundColor: colors.panel };
+  if (variant === 'outline') return { backgroundColor: 'transparent', borderWidth: 2, borderColor: colors.brand[700] };
   return { backgroundColor: 'transparent' };
 }
 
@@ -62,6 +63,7 @@ function textColor(variant: ButtonVariant, isDisabled?: boolean) {
   if (isDisabled) return { color: colors.disabled.fg };
   if (variant === 'primary') return { color: colors.action.fg };
   if (variant === 'secondary') return { color: colors.brand[800] };
+  if (variant === 'outline') return { color: colors.brand[700] };
   return { color: colors.brand[700] };
 }
 

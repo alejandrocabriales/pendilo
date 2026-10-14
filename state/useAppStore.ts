@@ -30,10 +30,12 @@ interface AppState {
   toast: ToastState | null;
   celebration: Celebration | null;
   voice: VoiceSession;
+  quickAddOpen: boolean;
 
   init: () => Promise<void>;
   devRestoreMockData: () => Promise<void>;
 
+  setQuickAddOpen: (open: boolean) => void;
   addQuickTask: (title: string) => Promise<void>;
   toggleTaskDone: (id: string) => Promise<void>;
   postponeTask: (id: string) => Promise<void>;
@@ -84,6 +86,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   toast: null,
   celebration: null,
   voice: idleVoice,
+  quickAddOpen: false,
 
   init: async () => {
     const [tasks, goals] = await Promise.all([taskRepository.list(), goalRepository.list()]);
@@ -96,6 +99,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   dismissToast: () => set({ toast: null }),
+
+  setQuickAddOpen: (open) => set({ quickAddOpen: open }),
 
   addQuickTask: async (title) => {
     const trimmed = title.trim();

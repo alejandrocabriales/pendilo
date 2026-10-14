@@ -35,14 +35,17 @@
   "copy": {
     "greeting": "Buen día, Manu",
     "header": {
-      "pending": "Hoy tenemos {n} cosas por resolver.",
-      "pendingOne": "Hoy tenemos 1 cosa por resolver.",
+      "pending": "{n} tareas por hacer.",
+      "pendingOne": "1 tarea por hacer.",
       "empty": "Hoy no tienes nada pendiente. Cuéntame qué tienes en mente.",
       "allDone": "¡Lo lograste! Terminaste todo lo de hoy."
     },
     "voice": { "listening": "Te escucho…", "processing": "Déjame organizar eso...", "found": "Encontré {tasks} y {goals}", "done": "Listo, ya organicé tu semana" },
     "overdue": { "one": "No terminaste esta tarea. ¿La pasamos para mañana?", "many": "No terminaste {n} tareas. ¿Las pasamos para mañana?" },
-    "celebration": { "day": { "title": "¡Lo lograste!", "body": "Terminaste todo lo de hoy." }, "goal": { "title": "¡Objetivo cumplido!" } },
+    "celebration": {
+      "day": { "title": "¡Lo lograste!", "body": "Terminaste todo lo de hoy.", "prompt": "¿Seguimos? Contame qué más querés hacer." },
+      "goal": { "title": "¡Objetivo cumplido!" }
+    },
     "errors": {
       "silence": { "title": "No te escuché bien", "body": "No detecté voz en la grabación. Revisa el micrófono e inténtalo de nuevo; no perdiste nada.", "primary": "Reintentar", "secondary": "Cancelar" },
       "perm": { "title": "Necesito tu micrófono", "body": "Pendilo no tiene permiso para usar el micrófono. Actívalo en Ajustes y vuelve a intentarlo.", "primary": "Abrir ajustes", "secondary": "Cancelar" },
@@ -50,6 +53,11 @@
       "transcribe": { "title": "No pude transcribir el audio", "body": "Algo falló al pasar tu voz a texto. Tu grabación sigue guardada.", "primary": "Reintentar", "secondary": "Grabar de nuevo" },
       "unclear": { "prompt": "No entendí esta parte. Cuéntame qué era.", "cta": "Convertir en tarea" }
     },
-    "empty": { "today": "Nada por ahora. Toca el micrófono y cuéntame lo que tienes en mente. Yo lo ordeno.", "freeDay": "No hay nada programado. Si algo se te ocurre, díselo a Pendilo con tu voz.", "goals": "Dile a Pendilo, por ejemplo, «quiero correr tres veces esta semana»." }
+    "empty": {
+      "today": "Toca el micrófono y cuéntame qué tienes en mente, o usa Escribir. Yo lo ordeno por ti.",
+      "todayExample": "Prueba decir: «Mañana tengo que pagar la luz y esta semana quiero correr tres veces».",
+      "freeDay": "No hay nada programado. Si algo se te ocurre, díselo a Pendilo con tu voz.",
+      "goals": "Dile a Pendilo, por ejemplo, «quiero correr tres veces esta semana»."
+    }
   }
 }

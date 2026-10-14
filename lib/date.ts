@@ -12,6 +12,20 @@ const WEEKDAY_LONG = [
   'viernes',
   'sábado',
 ];
+const MONTH_LONG = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+];
 
 function pad2(n: number): string {
   return n < 10 ? `0${n}` : `${n}`;
@@ -65,6 +79,18 @@ export function dayOfMonth(iso: string): number {
 
 export function monthShort(iso: string): string {
   return MONTH_SHORT[fromISODate(iso).getMonth()];
+}
+
+export function monthLong(iso: string): string {
+  return MONTH_LONG[fromISODate(iso).getMonth()];
+}
+
+/** Encabezado de fecha completo, p. ej. "Miércoles 14 de octubre". */
+export function fullDateLabel(iso: string): string {
+  const weekday = weekdayLong(iso);
+  const day = dayOfMonth(iso);
+  const month = monthLong(iso);
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${day} de ${month}`;
 }
 
 export function isSameDate(a: string, b: string): boolean {
