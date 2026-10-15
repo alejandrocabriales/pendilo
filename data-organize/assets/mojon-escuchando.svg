@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Mojón escuchando">
-<rect x="40" y="132" width="120" height="54" rx="27" fill="#2F6F73" transform="translate(-3 0)"/>
-<g transform="translate(4 0)">
-<rect x="54" y="88" width="92" height="52" rx="26" fill="#4E9A97"/>
-<path d="M83 108h0.01M117 108h0.01" stroke="#0F2E30" stroke-width="14" stroke-linecap="round" fill="none"/>
-<path d="M100 125h0.01" stroke="#0F2E30" stroke-width="8" stroke-linecap="round" fill="none"/>
-</g>
-<rect x="76" y="52" width="48" height="42" rx="21" fill="#9CCFC4" transform="rotate(-7 100 92)"/>
-</svg>

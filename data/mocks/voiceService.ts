@@ -64,3 +64,23 @@ export function buildDemoReview(now: Date = new Date()): ReviewItem[] {
 
   return [...taskAndGoalItems, unclearItem];
 }
+
+/**
+ * Fase 1 no tiene NLP real: Escribir (texto) no pasa por el guion fijo de voz,
+ * sino que arma un único ítem de revisión a partir del título tal cual se escribió.
+ * El día siempre queda "unresolved" porque Escribir no lo pregunta — se resuelve en Revisión.
+ */
+export function buildReviewFromText(title: string): ReviewItem[] {
+  return [
+    {
+      id: createId('r'),
+      type: 'task',
+      title,
+      date: null,
+      minutes: null,
+      durationMin: 15,
+      provenance: { date: 'unresolved', minutes: 'suggested', durationMin: 'suggested' },
+      editing: false,
+    },
+  ];
+}

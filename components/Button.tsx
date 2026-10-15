@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, Text, StyleSheet, ActivityIndicator, GestureResponderEvent } from 'react-native';
+import React, { ReactNode } from 'react';
+import { Pressable, Text, View, StyleSheet, ActivityIndicator, GestureResponderEvent } from 'react-native';
 import { colors, radius, size, type, space } from '../theme/tokens';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'flat' | 'outline';
@@ -13,6 +13,7 @@ interface ButtonProps {
   /** Razón visible por la que está deshabilitado (p. ej. "Falta definir el día"). */
   disabledHint?: string;
   small?: boolean;
+  icon?: ReactNode;
 }
 
 export function Button({
@@ -23,6 +24,7 @@ export function Button({
   loading,
   disabledHint,
   small,
+  icon,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -43,9 +45,12 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={variant === 'primary' ? colors.action.fg : colors.action.bg} />
       ) : (
-        <Text style={[styles.label, textColor(variant, isDisabled)]} numberOfLines={1}>
-          {label}
-        </Text>
+        <View style={styles.content}>
+          {icon}
+          <Text style={[styles.label, textColor(variant, isDisabled)]} numberOfLines={1}>
+            {label}
+          </Text>
+        </View>
       )}
     </Pressable>
   );
@@ -77,5 +82,6 @@ const styles = StyleSheet.create({
   },
   small: { minHeight: size.buttonSm },
   pressed: { opacity: 0.85 },
+  content: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   label: { ...type.card },
 });

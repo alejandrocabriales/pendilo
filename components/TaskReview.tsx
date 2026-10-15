@@ -98,7 +98,7 @@ export function TaskReview({
           {item.type === 'unclear' ? (
             <>
               <Text style={styles.kicker}>Frase poco clara</Text>
-              <Text style={styles.quote}>"{item.quote}"</Text>
+              <Text style={styles.quote}>&quot;{item.quote}&quot;</Text>
               <Text style={styles.prompt}>{copy.errors.unclear.prompt}</Text>
               <TextInput
                 value={item.fix}

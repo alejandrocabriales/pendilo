@@ -50,6 +50,17 @@ export default function RevisionScreen() {
         </Pressable>
       </View>
 
+      <View style={styles.legendRow}>
+        <View style={styles.legendItem}>
+          <View style={styles.legendSwatchSolid} />
+          <Text style={styles.legendLabel}>Sólido: lo dijiste</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={styles.legendSwatchDashed} />
+          <Text style={styles.legendLabel}>Punteado: sugerencia</Text>
+        </View>
+      </View>
+
       <ScrollView contentContainerStyle={styles.scroll}>
         <TaskReview
           items={voice.review}
@@ -64,7 +75,7 @@ export default function RevisionScreen() {
       </ScrollView>
 
       <Button
-        label="Confirmar"
+        label={`Confirmar todo (${voice.review.length})`}
         disabled={!canConfirm}
         disabledHint="Resolvé los campos marcados antes de confirmar"
         onPress={confirmReview}
@@ -77,5 +88,17 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.paper, paddingHorizontal: space[5] },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: space[3], marginBottom: space[4] },
   title: { ...type.section, color: colors.ink[1], flex: 1 },
+  legendRow: { flexDirection: 'row', gap: space[4], marginBottom: space[3] },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: space[1] },
+  legendSwatchSolid: { width: 12, height: 12, borderRadius: 3, backgroundColor: colors.brand[700] },
+  legendSwatchDashed: {
+    width: 12,
+    height: 12,
+    borderRadius: 3,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.suggest.fg,
+  },
+  legendLabel: { ...type.caption, color: colors.ink[3] },
   scroll: { paddingBottom: space[6] },
 });

@@ -18,3 +18,8 @@ export function foundSummary(taskCount: number, goalCount: number): string {
   const goalWord = goalCount === 1 ? '1 objetivo semanal' : `${goalCount} objetivos semanales`;
   return copy.voice.found.replace('{tasks}', taskWord).replace('{goals}', goalWord);
 }
+
+export function dayCompleteStats(done: number, total: number): string {
+  const taskWord = total === 1 ? 'tarea' : 'tareas';
+  return `Hiciste ${done} de ${total} ${taskWord}`;
+}

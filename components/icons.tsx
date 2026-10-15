@@ -61,12 +61,23 @@ export function RingIcon({ size = 22, color }: IconProps) {
   );
 }
 
-export function AlertIcon({ size = 16, color }: IconProps) {
+export function GearIcon({ size = 22, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path d="M12 3 2 21h20L12 3z" stroke={color} strokeWidth={2} strokeLinejoin="round" />
-      <Line x1={12} y1={10} x2={12} y2={14} stroke={color} strokeWidth={2} strokeLinecap="round" />
-      <Circle cx={12} cy={17.5} r={0.9} fill={color} />
+      <Circle cx={12} cy={12} r={3} stroke={color} strokeWidth={2} />
+      {[0, 60, 120, 180, 240, 300].map((deg) => (
+        <Line
+          key={deg}
+          x1={12}
+          y1={3}
+          x2={12}
+          y2={6}
+          stroke={color}
+          strokeWidth={2}
+          strokeLinecap="round"
+          transform={`rotate(${deg} 12 12)`}
+        />
+      ))}
     </Svg>
   );
 }
@@ -80,10 +91,18 @@ export function CloseIcon({ size = 22, color }: IconProps) {
   );
 }
 
-export function ShieldIcon({ size = 16, color }: IconProps) {
+export function StopIcon({ size = 14, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" stroke={color} strokeWidth={2} strokeLinejoin="round" />
+      <Rect x={3} y={3} width={18} height={18} rx={3} fill={color} />
+    </Svg>
+  );
+}
+
+export function ChevronDownIcon({ size = 16, color }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d="M5 9l7 7 7-7" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   );
 }
