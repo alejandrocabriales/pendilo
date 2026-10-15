@@ -9,6 +9,8 @@ export default function VozLayout() {
       screenOptions={{
         headerShown: false,
         gestureEnabled: false,
+        animation: 'fade',
+        animationTypeForReplace: 'push',
         contentStyle: { backgroundColor: colors.paper },
       }}
     />

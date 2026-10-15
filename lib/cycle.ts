@@ -39,27 +39,35 @@ export function daysUntilCycleClose(todayIso: string): number {
   return 6 - mondayIndexed;
 }
 
-export type DayBarStatus = 'done' | 'today-pending' | 'future' | 'empty';
+export type WeekRingState = 'done' | 'partial' | 'pending' | 'empty';
 
-export interface DayBar {
+export interface WeekRingDay {
   date: string;
   letter: string;
-  status: DayBarStatus;
+  isToday: boolean;
+  total: number;
+  done: number;
+  /** Porcentaje 0-100 de tareas hechas ese día, para el relleno del anillo "parcial". */
+  pct: number;
+  state: WeekRingState;
 }
 
-/** Barra simple de 7 días (hecho / hoy pendiente / futuro / vacío), para WeekSummaryCard. */
-export function buildWeekDayBars(tasks: Task[], todayIso: string): DayBar[] {
-  const counts = doneCountByDate(tasks);
+/**
+ * Anillos de los 7 días para WeekSummaryCard: completo (todas hechas), parcial
+ * (algunas), pendiente (ninguna, con tareas) o sin tareas. "Hoy" es un dato aparte
+ * (un anillo exterior), no un estado propio, para no tapar si hoy ya se completó.
+ */
+export function buildWeekRingDays(tasks: Task[], todayIso: string): WeekRingDay[] {
+  const done = doneCountByDate(tasks);
+  const total = totalCountByDate(tasks);
   const monday = startOfWeek(todayIso);
   return Array.from({ length: 7 }, (_, i) => {
     const date = addDays(monday, i);
-    const done = (counts.get(date) ?? 0) > 0;
-    let status: DayBarStatus;
-    if (done) status = 'done';
-    else if (date === todayIso) status = 'today-pending';
-    else if (date > todayIso) status = 'future';
-    else status = 'empty';
-    return { date, letter: weekdayShort(date).charAt(0), status };
+    const t = total.get(date) ?? 0;
+    const d = done.get(date) ?? 0;
+    const pct = t > 0 ? Math.round((d / t) * 100) : 0;
+    const state: WeekRingState = t === 0 ? 'empty' : d >= t ? 'done' : d === 0 ? 'pending' : 'partial';
+    return { date, letter: weekdayShort(date).charAt(0), isToday: date === todayIso, total: t, done: d, pct, state };
   });
 }
 

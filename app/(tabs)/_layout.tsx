@@ -8,7 +8,7 @@ const TAB_TO_ROUTE: Record<TabKey, string> = { hoy: 'index', semana: 'semana' };
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, animation: 'fade' }}
       tabBar={({ state, navigation }) => {
         const activeRouteName = state.routeNames[state.index];
         const active = ROUTE_TO_TAB[activeRouteName] ?? 'hoy';
