@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, shadow, size, space, type } from '../theme/tokens';
 import { SunIcon, CalendarIcon, MicIcon, PencilIcon, GearIcon } from './icons';
 
-export type TabKey = 'hoy' | 'semana';
+export type TabKey = 'hoy' | 'semana' | 'ajustes';
 
 interface BottomNavigationProps {
   active: TabKey;
@@ -13,10 +13,7 @@ interface BottomNavigationProps {
   onWrite: () => void;
 }
 
-/**
- * Barra flotante de 5 posiciones (handoff §Navegación): Hoy, Semana, Micrófono (centro,
- * elevado), Escribir, Ajustes. Ajustes es un marcador de posición sin acción todavía.
- */
+/** Barra flotante de 5 posiciones (handoff §Navegación): Hoy, Semana, Micrófono (centro, elevado), Escribir, Ajustes. */
 export function BottomNavigation({ active, onChange, onMic, onWrite }: BottomNavigationProps) {
   const insets = useSafeAreaInsets();
 
@@ -53,13 +50,14 @@ export function BottomNavigation({ active, onChange, onMic, onWrite }: BottomNav
         </Pressable>
 
         <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Ajustes, próximamente"
-          accessibilityState={{ disabled: true }}
+          onPress={() => onChange('ajustes')}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: active === 'ajustes' }}
+          accessibilityLabel="Ajustes"
           style={styles.tab}
         >
-          <GearIcon size={22} color={colors.ink[4]} />
-          <Text style={[styles.tabLabel, styles.tabLabelDisabled]}>Ajustes</Text>
+          <GearIcon size={22} color={active === 'ajustes' ? colors.action.bg : colors.ink[3]} />
+          <Text style={[styles.tabLabel, active === 'ajustes' ? styles.tabLabelSelected : null]}>Ajustes</Text>
         </Pressable>
       </View>
 
@@ -92,7 +90,6 @@ const styles = StyleSheet.create({
   micSlot: { width: 88, alignItems: 'center' },
   tabLabel: { ...type.caption, color: colors.ink[3] },
   tabLabelSelected: { color: colors.action.bg },
-  tabLabelDisabled: { color: colors.ink[4] },
   mic: {
     position: 'absolute',
     top: -(size.mic / 2),

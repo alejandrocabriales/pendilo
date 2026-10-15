@@ -1,11 +1,17 @@
 import { create } from 'zustand';
-import type { Task, Goal, VoiceSession, VoiceErrorKind, Celebration, ReviewItem, Provenance } from '../types/domain';
+import type { Task, Goal, VoiceSession, VoiceErrorKind, Celebration, ReviewItem, Provenance, Settings } from '../types/domain';
 import { taskRepository } from '../data/repositories/taskRepository';
 import { goalRepository, isGoalComplete, goalStep } from '../data/repositories/goalRepository';
+import { settingsRepository } from '../data/repositories/settingsRepository';
 import { fullTranscript, voiceTiming, buildDemoReview, buildReviewFromText } from '../data/mocks/voiceService';
 import { createId } from '../lib/id';
-import { todayISO } from '../lib/date';
+import { todayISO, addDays } from '../lib/date';
 import { copy } from '../data/copy';
+import { seedUserName } from '../data/mocks/seed';
+import { removeKeys, StorageKeys } from '../data/storage';
+
+/** Tareas al día que puede crear un plan gratis antes de que aparezca el paywall de uso. */
+export const DAILY_FREE_TASK_LIMIT = 3;
 
 interface ToastState {
   id: string;
@@ -27,6 +33,7 @@ interface AppState {
   ready: boolean;
   tasks: Task[];
   goals: Goal[];
+  settings: Settings;
   toast: ToastState | null;
   celebration: Celebration | null;
   voice: VoiceSession;
@@ -34,6 +41,14 @@ interface AppState {
 
   init: () => Promise<void>;
   devRestoreMockData: () => Promise<void>;
+
+  canCreateTaskToday: () => boolean;
+  setName: (name: string) => Promise<void>;
+  setSaludoOn: (on: boolean) => Promise<void>;
+  setSaludoHora: (hora: string) => Promise<void>;
+  upgradeToPro: () => Promise<void>;
+  restorePurchases: () => void;
+  resetAllData: () => Promise<void>;
 
   setQuickAddOpen: (open: boolean) => void;
   addQuickTask: (title: string) => Promise<void>;
@@ -84,19 +99,73 @@ export const useAppStore = create<AppState>((set, get) => ({
   ready: false,
   tasks: [],
   goals: [],
+  settings: { plan: 'free', name: seedUserName, saludoOn: true, saludoHora: '08:30', renewsAt: null },
   toast: null,
   celebration: null,
   voice: idleVoice,
   quickAddOpen: false,
 
   init: async () => {
-    const [tasks, goals] = await Promise.all([taskRepository.list(), goalRepository.list()]);
-    set({ tasks, goals, ready: true });
+    const [tasks, goals, settings] = await Promise.all([
+      taskRepository.list(),
+      goalRepository.list(),
+      settingsRepository.load(),
+    ]);
+    set({ tasks, goals, settings, ready: true });
   },
 
   devRestoreMockData: async () => {
     const [tasks, goals] = await Promise.all([taskRepository.resetToSeed(), goalRepository.resetToSeed()]);
     set({ tasks, goals, toast: null, celebration: null });
+  },
+
+  // Fase 1 no tiene tareas por hora específica a futuro ni backend: "hoy" alcanza para decidir
+  // si el plan gratis llegó a su límite diario (3 tareas, cualquier estado).
+  canCreateTaskToday: () => {
+    const { tasks, settings } = get();
+    if (settings.plan === 'pro') return true;
+    const today = todayISO();
+    return tasks.filter((t) => t.date === today).length < DAILY_FREE_TASK_LIMIT;
+  },
+
+  setName: async (name) => {
+    const next = { ...get().settings, name };
+    set({ settings: next });
+    await settingsRepository.save(next);
+  },
+
+  setSaludoOn: async (on) => {
+    const next = { ...get().settings, saludoOn: on };
+    set({ settings: next });
+    await settingsRepository.save(next);
+  },
+
+  setSaludoHora: async (hora) => {
+    const next = { ...get().settings, saludoHora: hora };
+    set({ settings: next });
+    await settingsRepository.save(next);
+  },
+
+  // Fase 1 no tiene cobro real (sin RevenueCat/IAP todavía): "pasar a Pro" solo activa la
+  // bandera local, igual de espíritu que el resto del demo (voz simulada, sin backend).
+  upgradeToPro: async () => {
+    const next = { ...get().settings, plan: 'pro' as const, renewsAt: addDays(todayISO(), 30) };
+    set({ settings: next, toast: { id: createId('toast'), text: 'Poli Pro activado (prueba de 7 días)' } });
+    await settingsRepository.save(next);
+  },
+
+  restorePurchases: () => {
+    set({ toast: { id: createId('toast'), text: 'No hay compras para restaurar' } });
+  },
+
+  // "Reiniciar a Poli": vuelve al estado de primer arranque (mock de semilla, sin onboarding
+  // marcado), igual que si se reinstalara la app (ver taskRepository.loadAll()).
+  resetAllData: async () => {
+    await removeKeys([StorageKeys.onboarding]);
+    const [tasks, goals] = await Promise.all([taskRepository.resetToSeed(), goalRepository.resetToSeed()]);
+    await settingsRepository.reset();
+    const settings = await settingsRepository.load();
+    set({ tasks, goals, settings, toast: null, celebration: null });
   },
 
   dismissToast: () => set({ toast: null }),

@@ -31,10 +31,22 @@ export default function HoyScreen() {
   const quickAddOpen = useAppStore((s) => s.quickAddOpen);
   const setQuickAddOpen = useAppStore((s) => s.setQuickAddOpen);
 
+  const canCreateTaskToday = useAppStore((s) => s.canCreateTaskToday);
+
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [completedRevealed, setCompletedRevealed] = useState(false);
 
   const today = todayISO();
+
+  // Plan gratis en su límite diario: cualquier intento de crear una tarea más lleva al
+  // paywall de uso en vez de a la voz, el texto o el agregado rápido.
+  function withCapacity(action: () => void) {
+    if (!canCreateTaskToday()) {
+      router.push('/paywall');
+      return;
+    }
+    action();
+  }
 
   const todaysTasks = useMemo(() => tasks.filter((t) => t.date === today), [tasks, today]);
   const done = todaysTasks.filter((t) => t.status === 'done');
@@ -62,7 +74,9 @@ export default function HoyScreen() {
   const showPendingHeader = todaysTasks.length > 0 && !allDone;
 
   function goToEscribir(prefix?: string) {
-    router.push(prefix ? { pathname: '/(voz)/escribir', params: { prefix } } : '/(voz)/escribir');
+    withCapacity(() => {
+      router.push(prefix ? { pathname: '/(voz)/escribir', params: { prefix } } : '/(voz)/escribir');
+    });
   }
 
   const renderTaskCard = (item: Task) => (
@@ -149,7 +163,7 @@ export default function HoyScreen() {
         <ScrollView style={styles.listFlex} contentContainerStyle={styles.doneContent}>
           <DayCompleteCard done={done.length} total={todaysTasks.length} />
           <WeekSummaryCard tasks={tasks} todayIso={today} />
-          <IdeaPromptCard onAddIdea={addQuickTask} tomorrowCount={tomorrowCount} />
+          <IdeaPromptCard onAddIdea={(title) => withCapacity(() => addQuickTask(title))} tomorrowCount={tomorrowCount} />
           {completedToggle}
           {completedRevealed ? done.map(renderTaskCard) : null}
           {devButton}
@@ -164,7 +178,7 @@ export default function HoyScreen() {
           ListFooterComponent={
             <>
               <Pressable
-                onPress={() => setQuickAddOpen(true)}
+                onPress={() => withCapacity(() => setQuickAddOpen(true))}
                 accessibilityRole="button"
                 style={styles.addMoreLink}
               >
@@ -181,8 +195,8 @@ export default function HoyScreen() {
       <QuickAddSheet
         visible={quickAddOpen}
         onClose={() => setQuickAddOpen(false)}
-        onSubmit={addQuickTask}
-        onMic={() => router.push('/(voz)/escuchando')}
+        onSubmit={(title) => withCapacity(() => addQuickTask(title))}
+        onMic={() => withCapacity(() => router.push('/(voz)/escuchando'))}
       />
     </View>
   );

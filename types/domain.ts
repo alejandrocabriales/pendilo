@@ -86,3 +86,15 @@ export interface Celebration {
   title: string;
   body: string;
 }
+
+export type Plan = 'free' | 'pro';
+
+export interface Settings {
+  plan: Plan;
+  name: string;
+  saludoOn: boolean;
+  /** 'HH:MM' local. */
+  saludoHora: string;
+  /** ISO date de renovación; solo tiene sentido con plan 'pro'. */
+  renewsAt: string | null;
+}
