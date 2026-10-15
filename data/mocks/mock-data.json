@@ -64,6 +64,9 @@
       "todayExample": "Prueba decir: «Mañana tengo que pagar la luz y esta semana quiero correr tres veces».",
       "freeDay": "No hay nada programado. Si algo se te ocurre, díselo a Pendilo con tu voz.",
       "goals": "Dile a Pendilo, por ejemplo, «quiero correr tres veces esta semana»."
+    },
+    "write": {
+      "hint": "Se agrega para hoy. Puedes cambiar la hora después, tocando la tarea."
     }
   }
 }

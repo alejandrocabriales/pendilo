@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, space, type } from '../theme/tokens';
-import { PendiloMascot } from './PendiloMascot';
+import { PoliMascot } from './PoliMascot';
 import { Button } from './Button';
 import type { Mood } from '../types/domain';
 
@@ -15,12 +15,13 @@ interface EmptyStateProps {
   title: string;
   body?: string;
   actions?: ActionSpec[];
+  size?: number;
 }
 
-export function EmptyState({ mood = 'resting', title, body, actions }: EmptyStateProps) {
+export function EmptyState({ mood = 'resting', title, body, actions, size = 72 }: EmptyStateProps) {
   return (
     <View style={styles.container}>
-      <PendiloMascot mood={mood} size={72} />
+      <PoliMascot mood={mood} size={size} />
       <Text style={styles.title}>{title}</Text>
       {body ? <Text style={styles.body}>{body}</Text> : null}
       {actions?.map((action) => (

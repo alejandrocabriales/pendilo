@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, space, type } from '../../theme/tokens';
 import { useAppStore } from '../../state/useAppStore';
 import { TaskReview } from '../../components/TaskReview';
+import { PoliMascot } from '../../components/PoliMascot';
 import { Button } from '../../components/Button';
 import { CloseIcon } from '../../components/icons';
 import { foundSummary } from '../../data/copy';
@@ -34,6 +35,7 @@ export default function RevisionScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + space[4], paddingBottom: insets.bottom + space[4] }]}>
       <View style={styles.headerRow}>
+        <PoliMascot mood="organizing" size={60} />
         <Text style={styles.title} accessibilityLiveRegion="polite">
           {foundSummary(taskCount, goalCount)}
         </Text>

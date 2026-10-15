@@ -53,7 +53,7 @@ export default function ProcesandoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.paper, paddingHorizontal: space[5] },
+  container: { flex: 1, backgroundColor: colors.panel, paddingHorizontal: space[5] },
   close: { alignSelf: 'flex-end', width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   content: { flex: 1, justifyContent: 'center' },
   devRow: { gap: space[1] },

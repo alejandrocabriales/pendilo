@@ -63,6 +63,7 @@ export default function ErrorScreen() {
         secondaryLabel={texts.secondary}
         onSecondary={handleSecondary}
         preservedTranscript={(kind === 'offline' || kind === 'transcribe') && voice.transcript ? voice.transcript : undefined}
+        mood={kind === 'offline' || kind === 'transcribe' ? 'thinking' : 'resting'}
       />
     </View>
   );

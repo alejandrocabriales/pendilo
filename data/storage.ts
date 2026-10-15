@@ -7,6 +7,7 @@ export const StorageKeys = {
   tasks: `${PREFIX}tasks`,
   goals: `${PREFIX}goals`,
   seeded: `${PREFIX}seeded`,
+  onboarding: `${PREFIX}onboarding`,
 } as const;
 
 export async function readJSON<T>(key: string): Promise<T | null> {

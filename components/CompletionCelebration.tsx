@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Modal, View, Text, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withDelay, withRepeat, withTiming, Easing } from 'react-native-reanimated';
 import { colors, space, type, motion } from '../theme/tokens';
-import { PendiloMascot } from './PendiloMascot';
+import { PoliMascot } from './PoliMascot';
 import { Button } from './Button';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
@@ -48,7 +48,7 @@ export function CompletionCelebration({ title, body, onClose }: CompletionCelebr
             <Ring delay={0} reducedMotion={reducedMotion} />
             <Ring delay={motion.ring.stagger} reducedMotion={reducedMotion} />
             <Ring delay={motion.ring.stagger * 2} reducedMotion={reducedMotion} />
-            <PendiloMascot mood="celebrating" size={96} />
+            <PoliMascot mood="celebrating" size={210} />
           </View>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.body}>{body}</Text>
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space[3],
   },
-  mascotWrap: { width: 150, height: 150, alignItems: 'center', justifyContent: 'center' },
+  mascotWrap: { width: 240, height: 240, alignItems: 'center', justifyContent: 'center' },
   ring: {
     position: 'absolute',
     width: 150,

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, space, type } from '../../theme/tokens';
 import { useAppStore } from '../../state/useAppStore';
+import { PoliMascot } from '../../components/PoliMascot';
 import { Button } from '../../components/Button';
-import { ShortcutChips } from '../../components/ShortcutChips';
-import { CloseIcon } from '../../components/icons';
+import { copy } from '../../data/copy';
+import { fullDateLabel, todayISO } from '../../lib/date';
 
 export default function EscribirScreen() {
   const insets = useSafeAreaInsets();
@@ -23,15 +24,7 @@ export default function EscribirScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + space[4], paddingBottom: insets.bottom + space[6] }]}>
-      <Pressable
-        onPress={() => router.replace('/(tabs)')}
-        accessibilityRole="button"
-        accessibilityLabel="Cancelar"
-        style={styles.close}
-        hitSlop={8}
-      >
-        <CloseIcon size={24} color={colors.ink[2]} />
-      </Pressable>
+      <Text style={styles.dateCaption}>{fullDateLabel(todayISO())}</Text>
 
       <View style={styles.inputBox}>
         <TextInput
@@ -39,7 +32,7 @@ export default function EscribirScreen() {
           multiline
           value={draft}
           onChangeText={setDraft}
-          placeholder="Escribe tu tarea..."
+          placeholder="Escribe tu tarea…"
           placeholderTextColor={colors.ink[4]}
           style={styles.input}
           textAlignVertical="top"
@@ -47,28 +40,37 @@ export default function EscribirScreen() {
         />
       </View>
 
-      <ShortcutChips onSelect={(prefix) => setDraft((d) => (d.length > 0 ? `${d} ${prefix}` : prefix))} />
+      <View style={styles.hintRow}>
+        <PoliMascot mood="organizing" size={48} filled={0} />
+        <Text style={styles.hintText}>{copy.write.hint}</Text>
+      </View>
 
-      <Button
-        label="Agregar tarea"
-        onPress={submit}
-        disabled={draft.trim().length === 0}
-        disabledHint="Escribe algo primero"
-      />
+      <View style={styles.actions}>
+        <Button
+          label="Agregar tarea"
+          onPress={submit}
+          disabled={draft.trim().length === 0}
+          disabledHint="Escribe algo primero"
+        />
+        <Button label="Cancelar" variant="outline" onPress={() => router.replace('/(tabs)')} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.paper, paddingHorizontal: space[5], gap: space[5] },
-  close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  container: { flex: 1, backgroundColor: colors.paper, paddingHorizontal: space[5], gap: space[4] },
+  dateCaption: { ...type.bodySm, color: colors.ink[2], textAlign: 'center', fontFamily: type.card.fontFamily },
   inputBox: {
     flex: 1,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: colors.brand[700],
     borderRadius: radius.panel,
     backgroundColor: colors.surface,
-    padding: space[5],
+    padding: space[4],
   },
-  input: { flex: 1, ...type.body, fontSize: 20, lineHeight: 27, color: colors.ink[1] },
+  input: { flex: 1, ...type.body, fontSize: 20, lineHeight: 29, color: colors.ink[1] },
+  hintRow: { flexDirection: 'row', alignItems: 'center', gap: space[3] },
+  hintText: { flex: 1, ...type.bodySm, color: colors.ink[2] },
+  actions: { gap: space[3] },
 });

@@ -32,7 +32,7 @@ export function IdeaPromptCard({ onAddIdea, tomorrowCount = 0 }: IdeaPromptCardP
 
       <Text style={styles.hint}>
         {tomorrowCount > 0
-          ? `Mañana ya ${tomorrowCount === 1 ? 'tenés 1 tarea' : `tenés ${tomorrowCount} tareas`}.`
+          ? `Mañana ya tienes ${tomorrowCount === 1 ? '1 tarea' : `${tomorrowCount} tareas`}. ¿Agregas algo más?`
           : copy.celebration.dayCard.tomorrowFree}
       </Text>
     </View>

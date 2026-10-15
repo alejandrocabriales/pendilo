@@ -17,6 +17,24 @@ export const colors = {
   toast: { bg: '#16161C', fg: '#F4F3F0', action: '#9CCFC4' },
 } as const;
 
+// Poli (la Polymita), la mascota: colores propios, fuera de la escala `brand`.
+// Regla de marca: la caracola y el orden de sus 5 franjas nunca cambian; solo cara y antenas varían por mood.
+export const poli = {
+  ink: '#3A2C3F',
+  skin: '#FFE6B3',
+  mouthPlate: '#F5D49B',
+  cheek: '#FF8FA8',
+  shellEmpty: '#ECE4DA',
+  hairline: '#FFFBF4',
+  stripes: [
+    { fill: '#2FBF71', crest: '#7DDBA4' },
+    { fill: '#3D9BE9', crest: '#8CC4F3' },
+    { fill: '#F2476A', crest: '#F78FA6' },
+    { fill: '#FF7A59', crest: '#FFAE96' },
+    { fill: '#FFC531', crest: null },
+  ],
+} as const;
+
 export const fonts = {
   display: { 500: 'BricolageGrotesque_500Medium', 600: 'BricolageGrotesque_600SemiBold', 700: 'BricolageGrotesque_700Bold' },
   body: { 400: 'InstrumentSans_400Regular', 500: 'InstrumentSans_500Medium', 600: 'InstrumentSans_600SemiBold' },
@@ -55,5 +73,5 @@ export const motion = {
   toast: { enter: 180, visible: 4500 },
 } as const;
 
-export const theme = { colors, fonts, type, space, radius, size, shadow, motion } as const;
+export const theme = { colors, poli, fonts, type, space, radius, size, shadow, motion } as const;
 export type Theme = typeof theme;

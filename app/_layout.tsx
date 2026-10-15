@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { usePendiloFonts } from '../theme/fonts';
 import { colors } from '../theme/tokens';
 import { useAppStore } from '../state/useAppStore';
+import { onboardingRepository } from '../features/onboarding';
 import { Toast } from '../components/Toast';
 import { CompletionCelebration } from '../components/CompletionCelebration';
 
@@ -18,18 +19,32 @@ export default function RootLayout() {
   const ready = useAppStore((s) => s.ready);
   const init = useAppStore((s) => s.init);
   const celebration = useAppStore((s) => s.celebration);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   useEffect(() => {
     init();
   }, []);
 
   useEffect(() => {
-    if (fontsLoaded && ready) {
+    if (!ready) return;
+    let cancelled = false;
+    onboardingRepository.isCompleted().then((completed) => {
+      if (cancelled) return;
+      if (!completed) router.replace('/(onboarding)/bienvenida');
+      setOnboardingChecked(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ready]);
+
+  useEffect(() => {
+    if (fontsLoaded && ready && onboardingChecked) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [fontsLoaded, ready]);
+  }, [fontsLoaded, ready, onboardingChecked]);
 
-  if (!fontsLoaded || !ready) return null;
+  if (!fontsLoaded || !ready || !onboardingChecked) return null;
 
   return (
     <GestureHandlerRootView style={styles.flex}>
@@ -38,6 +53,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.paper } }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(voz)" options={{ presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="(onboarding)" />
         </Stack>
         <Toast />
         {celebration ? (

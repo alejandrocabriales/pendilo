@@ -79,8 +79,9 @@ export default function SemanaScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + space[4] }]}>
       <ScrollView contentContainerStyle={{ paddingBottom: space[12] + size.mic }}>
-        <Text style={styles.title}>Semana {weekNumber(today)}</Text>
-        <Text style={styles.subtitle}>Cierra en {daysUntilCycleClose(today)} días</Text>
+        <Text style={styles.title}>
+          Semana {weekNumber(today)} · Cierra en {daysUntilCycleClose(today)} días
+        </Text>
 
         <View style={styles.daysRow}>
           {dayStates.map((day) => {
@@ -173,8 +174,7 @@ export default function SemanaScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.paper, paddingHorizontal: space[5] },
-  title: { ...type.title, color: colors.ink[1] },
-  subtitle: { ...type.body, color: colors.ink[3], marginBottom: space[5] },
+  title: { ...type.section, color: colors.ink[1], marginBottom: space[5] },
   daysRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: space[4] },
   dayWrap: { alignItems: 'center', minWidth: size.touch, minHeight: size.touch, justifyContent: 'center' },
   dayNode: {

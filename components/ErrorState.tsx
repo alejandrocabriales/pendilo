@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, space, type } from '../theme/tokens';
-import { PendiloMascot } from './PendiloMascot';
+import { PoliMascot } from './PoliMascot';
 import { Button } from './Button';
+import type { Mood } from '../types/domain';
 
 interface ErrorStateProps {
   title: string;
@@ -13,6 +14,8 @@ interface ErrorStateProps {
   onSecondary?: () => void;
   /** Transcripción conservada (offline/transcribe): se muestra como "Lo que dijiste · guardado". */
   preservedTranscript?: string;
+  /** Problema de micrófono (sin voz / sin permiso) → "resting"; de procesamiento (sin conexión / transcripción) → "thinking". */
+  mood?: Mood;
 }
 
 export function ErrorState({
@@ -23,10 +26,11 @@ export function ErrorState({
   secondaryLabel,
   onSecondary,
   preservedTranscript,
+  mood = 'resting',
 }: ErrorStateProps) {
   return (
     <View style={styles.container} accessibilityLiveRegion="polite">
-      <PendiloMascot mood="thinking" size={72} />
+      <PoliMascot mood={mood} size={170} />
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.body}>{body}</Text>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, space, type } from '../theme/tokens';
-import { PendiloMascot } from './PendiloMascot';
+import { PoliMascot } from './PoliMascot';
 import { copy, dayCompleteStats } from '../data/copy';
 
 interface DayCompleteCardProps {
@@ -16,7 +16,7 @@ export function DayCompleteCard({ done, total }: DayCompleteCardProps) {
       <Text style={[styles.sparkle, styles.sparkleTopLeft]}>✦</Text>
       <Text style={[styles.sparkle, styles.sparkleTopRight]}>✧</Text>
       <Text style={[styles.sparkle, styles.sparkleBottomLeft]}>✧</Text>
-      <PendiloMascot mood="celebrating" size={88} />
+      <PoliMascot mood="celebrating" size={180} />
       <Text style={styles.title}>{copy.celebration.dayCard.title}</Text>
       <Text style={styles.stats}>{dayCompleteStats(done, total)}</Text>
     </View>

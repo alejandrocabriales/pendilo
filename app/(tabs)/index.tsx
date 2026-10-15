@@ -2,19 +2,18 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, FlatList, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, size, space, type } from '../../theme/tokens';
+import { colors, radius, size, space, type } from '../../theme/tokens';
 import { useAppStore } from '../../state/useAppStore';
-import { PendiloMascot } from '../../components/PendiloMascot';
+import { PoliMascot } from '../../components/PoliMascot';
 import { TaskCard } from '../../components/TaskCard';
 import { DayCompleteCard } from '../../components/DayCompleteCard';
 import { WeekSummaryCard } from '../../components/WeekSummaryCard';
 import { IdeaPromptCard } from '../../components/IdeaPromptCard';
 import { ShortcutChips } from '../../components/ShortcutChips';
-import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
 import { QuickAddSheet } from '../../components/QuickAddSheet';
 import { ProgressIndicator } from '../../components/ProgressIndicator';
-import { ChevronDownIcon, MicIcon } from '../../components/icons';
+import { ChevronDownIcon } from '../../components/icons';
 import { todayISO, addDays } from '../../lib/date';
 import { copy, pendingHeader } from '../../data/copy';
 import { seedUserName } from '../../data/mocks/seed';
@@ -57,7 +56,8 @@ export default function HoyScreen() {
   const headerMessage =
     todaysTasks.length === 0 ? copy.header.empty : allDone ? copy.header.allDone : pendingHeader(pending.length);
 
-  const mascotMood = allDone ? 'celebrating' : 'resting';
+  const mascotFilled = todaysTasks.length === 0 ? 0 : Math.round((done.length / todaysTasks.length) * 5);
+  const mascotMood = allDone ? 'celebrating' : mascotFilled === 0 ? 'resting' : 'organizing';
 
   const showPendingHeader = todaysTasks.length > 0 && !allDone;
 
@@ -109,38 +109,40 @@ export default function HoyScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + space[4] }]}>
       <View style={styles.header}>
-        {allDone ? null : <PendiloMascot mood={mascotMood} size={64} />}
-        <View style={styles.headerText}>
-          <Text style={styles.greeting}>{copy.greeting.replace('Manu', seedUserName)}</Text>
-          <Text style={styles.message} accessibilityLiveRegion="polite">
-            {headerMessage}
-          </Text>
-        </View>
+        <Text style={styles.greeting}>{copy.greeting.replace('Manu', seedUserName)}</Text>
+        <Text style={styles.message} accessibilityLiveRegion="polite">
+          {headerMessage}
+        </Text>
       </View>
 
       {showPendingHeader ? (
-        <View style={styles.progressBlock}>
-          <ProgressIndicator
-            segments={todaysTasks.length}
-            done={done.length}
-            accessibilityLabel={`${done.length} de ${todaysTasks.length} tareas completadas`}
-          />
-          <Text style={styles.statsCount}>{`${done.length} de ${todaysTasks.length} hechas`}</Text>
+        <View style={styles.heroCard}>
+          <PoliMascot mood={mascotMood} filled={mascotFilled} size={148} />
+          <View style={styles.heroText}>
+            <View style={styles.heroCountRow}>
+              <Text style={styles.heroCount}>{done.length}</Text>
+              <Text style={styles.heroCountOf}>{`de ${todaysTasks.length}`}</Text>
+            </View>
+            <Text style={styles.heroLabel}>tareas hechas</Text>
+            <ProgressIndicator
+              segments={todaysTasks.length}
+              done={done.length}
+              accessibilityLabel={`${done.length} de ${todaysTasks.length} tareas completadas`}
+            />
+          </View>
         </View>
       ) : null}
 
       {todaysTasks.length === 0 ? (
         <ScrollView style={styles.listFlex} contentContainerStyle={styles.emptyContent}>
-          <EmptyState mood="resting" title="Cuéntame qué tienes hoy" body={copy.empty.today} />
-          <Button
-            label="Hablar con Pendilo"
-            onPress={() => router.push('/(voz)/escuchando')}
-            icon={<MicIcon size={18} color={colors.action.fg} />}
-          />
-          <Pressable onPress={() => goToEscribir()} accessibilityRole="button" style={styles.writeLink}>
-            <Text style={styles.writeLinkLabel}>o escribir en su lugar</Text>
-          </Pressable>
-          <ShortcutChips onSelect={goToEscribir} />
+          <EmptyState mood="listening" title="Empecemos tu día" body={copy.empty.today} size={170} />
+          <View style={styles.ideaCard}>
+            <Text style={styles.ideaCardTitle}>O empieza con una idea</Text>
+            <ShortcutChips onSelect={goToEscribir} />
+          </View>
+          <View style={styles.exampleBox}>
+            <Text style={styles.exampleText}>{copy.empty.todayExample}</Text>
+          </View>
           {devButton}
         </ScrollView>
       ) : allDone ? (
@@ -188,18 +190,47 @@ export default function HoyScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.paper, paddingHorizontal: space[5] },
-  header: { flexDirection: 'row', alignItems: 'center', gap: space[4], marginBottom: space[5] },
-  headerText: { flex: 1, gap: space[1] },
+  header: { gap: space[1], marginBottom: space[5] },
   greeting: { ...type.title, color: colors.ink[1] },
   message: { ...type.body, color: colors.ink[2] },
-  progressBlock: { gap: space[3], marginBottom: space[5] },
-  statsCount: { ...type.section, color: colors.ink[1] },
+  heroCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[3],
+    backgroundColor: colors.panel,
+    borderRadius: radius.panel,
+    paddingVertical: space[2],
+    paddingLeft: space[2],
+    paddingRight: space[5],
+    marginBottom: space[5],
+  },
+  heroText: { flex: 1, gap: space[1] },
+  heroCountRow: { flexDirection: 'row', alignItems: 'baseline', gap: space[1] },
+  heroCount: { ...type.titleLg, color: colors.ink[1] },
+  heroCountOf: { ...type.card, color: colors.ink[2] },
+  heroLabel: { ...type.caption, color: colors.ink[1] },
   listFlex: { flex: 1 },
   list: { paddingBottom: space[12] + size.mic, gap: space[3] },
   doneContent: { paddingBottom: space[12] + size.mic, paddingTop: space[2], gap: space[3] },
   emptyContent: { paddingBottom: space[12] + size.mic, paddingTop: space[2], gap: space[4] },
-  writeLink: { alignSelf: 'center', paddingVertical: space[1] },
-  writeLinkLabel: { ...type.bodySm, color: colors.brand[700] },
+  ideaCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radius.card,
+    padding: space[4],
+    gap: space[3],
+  },
+  ideaCardTitle: { ...type.caption, color: colors.ink[1] },
+  exampleBox: {
+    borderWidth: 1.5,
+    borderColor: colors.suggest.fg,
+    borderStyle: 'dashed',
+    backgroundColor: colors.suggest.bg,
+    borderRadius: radius.day,
+    padding: space[4],
+  },
+  exampleText: { ...type.body, color: colors.ink[1] },
   completedToggle: {
     flexDirection: 'row',
     alignItems: 'center',

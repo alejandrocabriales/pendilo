@@ -68,7 +68,7 @@ export default function EscuchandoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.paper, paddingHorizontal: space[5] },
+  container: { flex: 1, backgroundColor: colors.panel, paddingHorizontal: space[5] },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space[6] },

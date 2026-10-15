@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, space, type } from '../../theme/tokens';
 import { useAppStore } from '../../state/useAppStore';
-import { PendiloMascot } from '../../components/PendiloMascot';
+import { PoliMascot } from '../../components/PoliMascot';
 import { Button } from '../../components/Button';
 import { copy } from '../../data/copy';
 import { todayISO, addDays } from '../../lib/date';
@@ -34,7 +34,7 @@ export default function ListoScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + space[4], paddingBottom: insets.bottom + space[6] }]}>
       <View style={styles.content}>
-        <PendiloMascot mood="celebrating" size={110} />
+        <PoliMascot mood="celebrating" size={190} />
         <Text style={styles.title}>{copy.voice.done}</Text>
 
         {rows.length > 0 ? (
