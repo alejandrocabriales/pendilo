@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { Task, Goal, VoiceSession, VoiceErrorKind, Celebration, ReviewItem, Provenance } from '../types/domain';
 import { taskRepository } from '../data/repositories/taskRepository';
 import { goalRepository, isGoalComplete, goalStep } from '../data/repositories/goalRepository';
-import { fullTranscript, voiceTiming, buildDemoReview } from '../data/mocks/voiceService';
+import { fullTranscript, voiceTiming, buildDemoReview, buildReviewFromText } from '../data/mocks/voiceService';
 import { createId } from '../lib/id';
 import { todayISO } from '../lib/date';
 import { copy } from '../data/copy';
@@ -46,6 +46,7 @@ interface AppState {
   changeGoalProgress: (id: string, delta: number) => Promise<void>;
 
   startVoiceSession: () => void;
+  startTextSession: (title: string) => void;
   stopRecording: () => void;
   cancelVoiceSession: () => void;
   devSimulateError: (kind: VoiceErrorKind) => void;
@@ -208,6 +209,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     elapsedTimer = setInterval(() => {
       set((state) => ({ voice: { ...state.voice, elapsedSec: state.voice.elapsedSec + 1 } }));
     }, 1000);
+  },
+
+  startTextSession: (title) => {
+    clearVoiceTimers();
+    set({
+      voice: { id: createId('vs'), stage: 'processing', transcript: title, elapsedSec: 0, review: [] },
+    });
+    processingTimer = setTimeout(() => {
+      set((state) => ({
+        voice: { ...state.voice, stage: 'review', review: buildReviewFromText(title) },
+      }));
+    }, voiceTiming.processingMs);
   },
 
   stopRecording: () => {

@@ -43,7 +43,13 @@
     "voice": { "listening": "Te escucho…", "processing": "Déjame organizar eso...", "found": "Encontré {tasks} y {goals}", "done": "Listo, ya organicé tu semana" },
     "overdue": { "one": "No terminaste esta tarea. ¿La pasamos para mañana?", "many": "No terminaste {n} tareas. ¿Las pasamos para mañana?" },
     "celebration": {
-      "day": { "title": "¡Lo lograste!", "body": "Terminaste todo lo de hoy.", "prompt": "¿Seguimos? Contame qué más querés hacer." },
+      "day": { "title": "¡Lo lograste!", "body": "Terminaste todo lo de hoy." },
+      "dayCard": {
+        "title": "¡Día completo!",
+        "prompt": "Toca el micrófono o elige una idea para sumar algo",
+        "tomorrowFree": "Mañana está libre. Prepararlo ahora te quita una preocupación.",
+        "ideas": ["Planear mañana", "Revisar mis objetivos", "Algo rápido de 10 min"]
+      },
       "goal": { "title": "¡Objetivo cumplido!" }
     },
     "errors": {

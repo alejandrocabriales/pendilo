@@ -62,6 +62,7 @@ export default function ErrorScreen() {
         onPrimary={handlePrimary}
         secondaryLabel={texts.secondary}
         onSecondary={handleSecondary}
+        preservedTranscript={(kind === 'offline' || kind === 'transcribe') && voice.transcript ? voice.transcript : undefined}
       />
     </View>
   );
