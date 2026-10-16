@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius, space, type } from '../theme/tokens';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { colors, easing, radius, space, type } from '../theme/tokens';
 import { PoliMascot } from './PoliMascot';
 import { Button } from './Button';
 import type { Mood } from '../types/domain';
+
+const ENTER = FadeIn.duration(220).easing(easing.easeOut);
 
 interface ErrorStateProps {
   title: string;
@@ -29,7 +32,7 @@ export function ErrorState({
   mood = 'resting',
 }: ErrorStateProps) {
   return (
-    <View style={styles.container} accessibilityLiveRegion="polite">
+    <Animated.View entering={ENTER} style={styles.container} accessibilityLiveRegion="polite">
       <PoliMascot mood={mood} size={170} />
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.body}>{body}</Text>
@@ -47,7 +50,7 @@ export function ErrorState({
           <Button label={secondaryLabel} variant="flat" onPress={onSecondary} />
         ) : null}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

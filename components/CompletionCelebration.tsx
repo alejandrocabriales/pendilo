@@ -1,6 +1,14 @@
 import React, { useEffect } from 'react';
 import { Modal, View, Text, StyleSheet } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withDelay, withRepeat, withTiming, Easing } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withDelay,
+  withRepeat,
+  withTiming,
+  cancelAnimation,
+  Easing,
+} from 'react-native-reanimated';
 import { colors, space, type, motion } from '../theme/tokens';
 import { PoliMascot } from './PoliMascot';
 import { Button } from './Button';
@@ -26,6 +34,10 @@ function Ring({ delay, reducedMotion }: { delay: number; reducedMotion: boolean 
       delay,
       withRepeat(withTiming(0, { duration: motion.ring.duration, easing: Easing.out(Easing.ease) }), -1)
     );
+    return () => {
+      cancelAnimation(scale);
+      cancelAnimation(opacity);
+    };
   }, [reducedMotion]);
 
   const style = useAnimatedStyle(() => ({

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, FlatList, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, size, space, type } from '../../theme/tokens';
@@ -19,11 +20,15 @@ import { copy, pendingHeader } from '../../data/copy';
 import { seedUserName } from '../../data/mocks/seed';
 import type { Task } from '../../types/domain';
 
+// Módulo, no inline: un builder de layout reconstruido en cada render pierde la animación en vuelo.
+const LIST_REFLOW = LinearTransition.duration(220);
+
 export default function HoyScreen() {
   const insets = useSafeAreaInsets();
   const tasks = useAppStore((s) => s.tasks);
   const toggleTaskDone = useAppStore((s) => s.toggleTaskDone);
   const postponeTask = useAppStore((s) => s.postponeTask);
+  const deleteTask = useAppStore((s) => s.deleteTask);
   const rescheduleTask = useAppStore((s) => s.rescheduleTask);
   const clearIsNew = useAppStore((s) => s.clearIsNew);
   const devRestoreMockData = useAppStore((s) => s.devRestoreMockData);
@@ -93,6 +98,7 @@ export default function HoyScreen() {
         }}
         onToggleDone={() => toggleTaskDone(item.id)}
         onPostpone={() => postponeTask(item.id)}
+        onDelete={() => deleteTask(item.id)}
         onChangeDate={(date) => rescheduleTask(item.id, date, item.minutes)}
         onChangeMinutes={(minutes) => rescheduleTask(item.id, item.date, minutes)}
       />
@@ -115,7 +121,7 @@ export default function HoyScreen() {
     ) : null;
 
   const devButton = __DEV__ ? (
-    <Pressable onPress={devRestoreMockData} style={styles.devButton}>
+    <Pressable onPress={devRestoreMockData} accessibilityRole="button" style={styles.devButton}>
       <Text style={styles.devButtonLabel}>Restaurar datos de ejemplo (dev)</Text>
     </Pressable>
   ) : null;
@@ -169,11 +175,12 @@ export default function HoyScreen() {
           {devButton}
         </ScrollView>
       ) : (
-        <FlatList
+        <Animated.FlatList
           style={styles.listFlex}
           data={pending}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
+          itemLayoutAnimation={LIST_REFLOW}
           renderItem={({ item }) => renderTaskCard(item)}
           ListFooterComponent={
             <>

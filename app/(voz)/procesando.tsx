@@ -40,10 +40,10 @@ export default function ProcesandoScreen() {
 
       {__DEV__ ? (
         <View style={styles.devRow}>
-          <Pressable onPress={() => devSimulateError('offline')} style={styles.devLink}>
+          <Pressable onPress={() => devSimulateError('offline')} accessibilityRole="button" style={styles.devLink}>
             <Text style={styles.devLinkLabel}>Simular sin conexión (dev)</Text>
           </Pressable>
-          <Pressable onPress={() => devSimulateError('transcribe')} style={styles.devLink}>
+          <Pressable onPress={() => devSimulateError('transcribe')} accessibilityRole="button" style={styles.devLink}>
             <Text style={styles.devLinkLabel}>Simular fallo de transcripción (dev)</Text>
           </Pressable>
         </View>

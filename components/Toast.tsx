@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
-import { colors, radius, space, type, motion } from '../theme/tokens';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { colors, radius, space, type, motion, spring } from '../theme/tokens';
 import { useAppStore } from '../state/useAppStore';
 
 /** Toast global: se renderiza una sola vez (ver app/_layout.tsx) y lee su estado del store. */
@@ -13,8 +13,9 @@ export function Toast() {
 
   useEffect(() => {
     if (!toast) return;
-    opacity.value = withTiming(1, { duration: motion.toast.enter, easing: Easing.out(Easing.ease) });
-    translateY.value = withTiming(0, { duration: motion.toast.enter, easing: Easing.out(Easing.ease) });
+    // Spring, no timing: el toast "encaja" al llegar (spring.snappy = reposicionar/encajar en DESIGN.md).
+    opacity.value = withSpring(1, spring.snappy);
+    translateY.value = withSpring(0, spring.snappy);
     const timer = setTimeout(() => dismissToast(), motion.toast.visible);
     return () => clearTimeout(timer);
   }, [toast?.id]);

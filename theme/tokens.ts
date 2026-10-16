@@ -1,5 +1,6 @@
 // Tokens de Pendilo para React Native. Fuente: tokens.json.
 // Fuentes: cargar con expo-font (Bricolage Grotesque 500/600/700, Instrument Sans 400/500/600).
+import { Easing } from 'react-native-reanimated';
 
 export const colors = {
   brand: { 100: '#DDEFEB', 200: '#9CCFC4', 500: '#4E9A97', 700: '#2F6F73', 800: '#1E4B4E', face: '#0F2E30' },
@@ -16,6 +17,29 @@ export const colors = {
   danger: { fg: '#B3261E', bg: '#FDECEA', ink: '#6B1510', hint: '#8A1C16' },
   toast: { bg: '#16161C', fg: '#F4F3F0', action: '#9CCFC4' },
 } as const;
+
+// Variante de modo oscuro. Mismas claves que `colors`; brand y poli no cambian entre temas.
+// Aún no hay selector de esquema en la app — estos tokens quedan listos para cuando se active (ver `colorsFor`).
+export const colorsDark = {
+  brand: colors.brand,
+  ink: { 1: '#F4F3F0', 2: '#C7C6C2', 3: '#A8A7A3', 4: '#8B8A87' },
+  paper: '#121418',
+  surface: '#1C1F26',
+  line: '#2A2D33',
+  night: '#121418',
+  action: { bg: '#4E9A97', fg: '#0F2E30' },
+  panel: '#1B3330',
+  track: '#2A2F2E',
+  disabled: { bg: '#2A2D33', fg: '#6A6A75' },
+  suggest: { fg: '#FFC971', bg: '#2E2311' },
+  danger: { fg: '#FF6B61', bg: '#3A1613', ink: '#FFD4CF', hint: '#FF8A80' },
+  toast: { bg: '#16161C', fg: '#F4F3F0', action: '#9CCFC4' },
+} as const;
+
+export type ColorScheme = 'light' | 'dark';
+export function colorsFor(scheme: ColorScheme) {
+  return scheme === 'dark' ? colorsDark : colors;
+}
 
 // Poli (la Polymita), la mascota: colores propios, fuera de la escala `brand`.
 // Regla de marca: la caracola y el orden de sus 5 franjas nunca cambian; solo cara y antenas varían por mood.
@@ -70,8 +94,46 @@ export const motion = {
   ring: { duration: 2400, from: 0.6, to: 1.7, stagger: 800 },
   wave: { duration: 1100, min: 0.2 },
   moodChange: { duration: 220 },
-  toast: { enter: 180, visible: 4500 },
+  // Entrada del toast: spring.snappy (ver Toast.tsx), no timing — `visible` sigue siendo la ventana de lectura.
+  toast: { visible: 4500 },
+  reduced: { duration: 120 },
 } as const;
 
-export const theme = { colors, poli, fonts, type, space, radius, size, shadow, motion } as const;
+// Curvas para withTiming/.easing() sin gesto. No usar Easing.in ni Easing.ease genérico (ver DESIGN.md).
+export const easing = {
+  easeOut: Easing.bezier(0.23, 1, 0.32, 1),
+  easeInOut: Easing.bezier(0.77, 0, 0.175, 1),
+  sheet: Easing.bezier(0.32, 0.72, 0, 1),
+} as const;
+
+// Springs para withSpring, parámetros Apple (duration + dampingRatio). Agregar `velocity` en la llamada.
+export const spring = {
+  suave: { duration: 400, dampingRatio: 1 },
+  snappy: { duration: 300, dampingRatio: 0.8 },
+  bouncy: { duration: 400, dampingRatio: 0.65 },
+} as const;
+
+export const opacity = { pressed: 0.85, pressedSubtle: 0.9, pressedStrong: 0.8, overlay: 0.5, scrim: 0.4 } as const;
+
+export const border = { hairline: 1, thin: 1.5, default: 2, emphasis: 3, ring: 4 } as const;
+
+export const zIndex = { base: 0, raised: 1, nav: 10, overlay: 20, sheet: 30, toast: 40, modal: 50 } as const;
+
+export const theme = {
+  colors,
+  colorsDark,
+  poli,
+  fonts,
+  type,
+  space,
+  radius,
+  size,
+  shadow,
+  motion,
+  easing,
+  spring,
+  opacity,
+  border,
+  zIndex,
+} as const;
 export type Theme = typeof theme;
