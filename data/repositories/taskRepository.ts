@@ -80,6 +80,18 @@ export const taskRepository = {
     return this.reschedule(id, { date: addDays(task.date, 1), minutes: task.minutes });
   },
 
+  async remove(id: string): Promise<void> {
+    const tasks = await loadAll();
+    await saveAll(tasks.filter((t) => t.id !== id));
+  },
+
+  /** Deshacer un borrado: vuelve a insertar la tarea tal cual estaba. */
+  async restore(task: Task): Promise<Task> {
+    const tasks = await loadAll();
+    await saveAll([...tasks, task]);
+    return task;
+  },
+
   async resetToSeed(): Promise<Task[]> {
     const { tasks } = buildSeedData();
     await saveAll(tasks);

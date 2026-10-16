@@ -26,6 +26,7 @@ export default function SemanaScreen() {
   const changeGoalProgress = useAppStore((s) => s.changeGoalProgress);
   const toggleTaskDone = useAppStore((s) => s.toggleTaskDone);
   const postponeTask = useAppStore((s) => s.postponeTask);
+  const deleteTask = useAppStore((s) => s.deleteTask);
   const rescheduleTask = useAppStore((s) => s.rescheduleTask);
 
   const today = todayISO();
@@ -70,6 +71,7 @@ export default function SemanaScreen() {
         onToggleExpand={() => setExpandedId((id) => (id === item.id ? null : item.id))}
         onToggleDone={() => toggleTaskDone(item.id)}
         onPostpone={() => postponeTask(item.id)}
+        onDelete={() => deleteTask(item.id)}
         onChangeDate={(date) => rescheduleTask(item.id, date, item.minutes)}
         onChangeMinutes={(minutes) => rescheduleTask(item.id, item.date, minutes)}
       />
@@ -153,7 +155,7 @@ export default function SemanaScreen() {
           <>
             {pendingShown.map(renderTask)}
             {hasMorePending ? (
-              <Pressable onPress={() => setShowAllPending(true)} style={styles.moreLink}>
+              <Pressable onPress={() => setShowAllPending(true)} accessibilityRole="button" style={styles.moreLink}>
                 <Text style={styles.moreLinkLabel}>Ver más pendientes</Text>
               </Pressable>
             ) : null}
@@ -161,7 +163,7 @@ export default function SemanaScreen() {
             {doneShown.length > 0 ? <Text style={styles.doneHeader}>Completadas</Text> : null}
             {doneShown.map(renderTask)}
             {hasMoreDone ? (
-              <Pressable onPress={() => setShowAllDone(true)} style={styles.moreLink}>
+              <Pressable onPress={() => setShowAllDone(true)} accessibilityRole="button" style={styles.moreLink}>
                 <Text style={styles.moreLinkLabel}>Ver más completadas</Text>
               </Pressable>
             ) : null}

@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, fonts, poli, radius, space, type } from '../../../../theme/tokens';
+import { colors, easing, fonts, poli, radius, space, type } from '../../../../theme/tokens';
 import { Button } from '../../../../components/Button';
 import { PoliMascot } from '../../../../components/PoliMascot';
 import { OnboardingProgress } from '../components/OnboardingProgress';
@@ -12,6 +13,10 @@ import { bandsForProgress, demoDoneCount, demoMessage, demoMood } from '../../do
 
 const TOTAL_STEPS = 5;
 const TOTAL_DEMO_TASKS = 3;
+const ENTER_1 = FadeInDown.duration(220).easing(easing.easeOut);
+const ENTER_2 = FadeInDown.duration(220).delay(60).easing(easing.easeOut);
+const ENTER_3 = FadeInDown.duration(220).delay(120).easing(easing.easeOut);
+const ENTER_4 = FadeInDown.duration(220).delay(180).easing(easing.easeOut);
 
 export default function HowItWorksScreen() {
   const insets = useSafeAreaInsets();
@@ -32,12 +37,12 @@ export default function HowItWorksScreen() {
       />
 
       <View style={styles.content}>
-        <View style={styles.copy}>
+        <Animated.View entering={ENTER_1} style={styles.copy}>
           <Text style={styles.title}>Cada tarea pinta mi caracola</Text>
           <Text style={styles.body}>Toca una tarea de ejemplo y mírame.</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.demoCard}>
+        <Animated.View entering={ENTER_2} style={styles.demoCard}>
           <PoliMascot
             mood={mood}
             size={148}
@@ -62,18 +67,18 @@ export default function HowItWorksScreen() {
             </View>
             <Text style={styles.demoMessage}>{message}</Text>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.list}>
+        <Animated.View entering={ENTER_3} style={styles.list}>
           <Text style={styles.listLabel}>Tareas de ejemplo</Text>
           {demoTasks.map((t) => (
             <DemoTaskRow key={t.id} title={t.title} done={t.done} onToggle={() => toggleDemoTask(t.id)} />
           ))}
-        </View>
+        </Animated.View>
 
-        <View style={styles.cta}>
+        <Animated.View entering={ENTER_4} style={styles.cta}>
           <Button label="Siguiente" onPress={() => router.replace('/(onboarding)/nombre')} />
-        </View>
+        </Animated.View>
       </View>
     </View>
   );

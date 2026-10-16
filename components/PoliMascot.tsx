@@ -9,6 +9,7 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
+import { useIsFocused } from 'expo-router';
 import type { Mood } from '../types/domain';
 import { poli, motion } from '../theme/tokens';
 import { useReducedMotion } from '../hooks/useReducedMotion';
@@ -62,15 +63,18 @@ export interface PoliMascotProps {
  * Geometría portada 1:1 del handoff de diseño (tablero "Poli · Personaje (SVG)").
  * El orden de las 5 franjas nunca cambia; lo que varía es cuántas están pintadas (`filled`) y la cara/antenas (`mood`).
  */
-export function PoliMascot({ mood, size = 96, filled = 5, accessibilityLabel }: PoliMascotProps) {
+function PoliMascotInner({ mood, size = 96, filled = 5, accessibilityLabel }: PoliMascotProps) {
   const reducedMotion = useReducedMotion();
+  const isFocused = useIsFocused();
   const translateY = useSharedValue(0);
   const face = FACE[mood];
   const filledCount = Math.max(0, Math.min(5, Math.round(filled)));
 
+  // Bob/hop: solo corre con la pantalla enfocada y sin reducir movimiento — si no, se apaga
+  // (nada en loop afuera de la vista) y queda limpio al desmontar.
   useEffect(() => {
     cancelAnimation(translateY);
-    if (reducedMotion) {
+    if (reducedMotion || !isFocused) {
       translateY.value = 0;
       return;
     }
@@ -90,7 +94,8 @@ export function PoliMascot({ mood, size = 96, filled = 5, accessibilityLabel }: 
         -1
       );
     }
-  }, [mood, reducedMotion]);
+    return () => cancelAnimation(translateY);
+  }, [mood, reducedMotion, isFocused]);
 
   const style = useAnimatedStyle(() => ({ transform: [{ translateY: translateY.value }] }));
 
@@ -299,3 +304,5 @@ export function PoliMascot({ mood, size = 96, filled = 5, accessibilityLabel }: 
     </Animated.View>
   );
 }
+
+export const PoliMascot = React.memo(PoliMascotInner);

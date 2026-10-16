@@ -1,13 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, space, type } from '../../../../theme/tokens';
+import { colors, easing, space, type } from '../../../../theme/tokens';
 import { Button } from '../../../../components/Button';
 import { OnboardingProgress } from '../components/OnboardingProgress';
 import { MascotStage } from '../components/MascotStage';
 
 const TOTAL_STEPS = 5;
+const ENTER_1 = FadeInDown.duration(220).easing(easing.easeOut);
+const ENTER_2 = FadeInDown.duration(220).delay(60).easing(easing.easeOut);
+const ENTER_3 = FadeInDown.duration(220).delay(120).easing(easing.easeOut);
 
 // Fase 1 no graba audio real (ver state/useAppStore.ts): este paso no pide permiso de
 // micrófono de verdad todavía, solo explica el gesto. Las dos acciones llevan al mismo
@@ -26,17 +30,19 @@ export default function MicrophoneScreen() {
       />
 
       <View style={styles.content}>
-        <MascotStage height={300} mascotSize={250} mood="listening" label="Poli escuchando, con la caracola vacía" />
+        <Animated.View entering={ENTER_1}>
+          <MascotStage height={300} mascotSize={250} mood="listening" label="Poli escuchando, con la caracola vacía" />
+        </Animated.View>
 
-        <View style={styles.copy}>
+        <Animated.View entering={ENTER_2} style={styles.copy}>
           <Text style={styles.title}>Para escucharte necesito el micrófono</Text>
           <Text style={styles.body}>Solo escucho cuando tú tocas el botón. Si prefieres, también puedes escribir tus tareas.</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.cta}>
+        <Animated.View entering={ENTER_3} style={styles.cta}>
           <Button label="Permitir micrófono" onPress={goNext} />
           <Button label="Ahora no, prefiero escribir" variant="flat" small onPress={goNext} />
-        </View>
+        </Animated.View>
       </View>
     </View>
   );

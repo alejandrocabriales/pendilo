@@ -58,7 +58,7 @@ export default function EscuchandoScreen() {
         <Button label="Detener" onPress={stopRecording} icon={<StopIcon size={14} color={colors.action.fg} />} />
         <Text style={styles.demoCaption}>Demo: no se graba audio real</Text>
         {__DEV__ ? (
-          <Pressable onPress={() => devSimulateError('perm')} style={styles.devLink}>
+          <Pressable onPress={() => devSimulateError('perm')} accessibilityRole="button" style={styles.devLink}>
             <Text style={styles.devLinkLabel}>Simular sin permiso de micrófono (dev)</Text>
           </Pressable>
         ) : null}

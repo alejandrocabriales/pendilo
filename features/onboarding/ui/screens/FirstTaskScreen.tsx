@@ -2,8 +2,16 @@ import React, { useEffect } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from 'react-native-reanimated';
-import { colors, fonts, motion, radius, shadow, size, space, type } from '../../../../theme/tokens';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  cancelAnimation,
+  FadeInDown,
+  Easing,
+} from 'react-native-reanimated';
+import { colors, easing, fonts, motion, radius, shadow, size, space, type } from '../../../../theme/tokens';
 import { Button } from '../../../../components/Button';
 import { MicIcon } from '../../../../components/icons';
 import { useReducedMotion } from '../../../../hooks/useReducedMotion';
@@ -13,6 +21,10 @@ import { useOnboarding } from '../useOnboarding';
 
 const TOTAL_STEPS = 5;
 const RING_SIZE = size.mic + 16;
+const ENTER_1 = FadeInDown.duration(220).easing(easing.easeOut);
+const ENTER_2 = FadeInDown.duration(220).delay(60).easing(easing.easeOut);
+const ENTER_3 = FadeInDown.duration(220).delay(120).easing(easing.easeOut);
+const ENTER_4 = FadeInDown.duration(220).delay(180).easing(easing.easeOut);
 
 function PulseRing() {
   const reducedMotion = useReducedMotion();
@@ -23,6 +35,10 @@ function PulseRing() {
     if (reducedMotion) return;
     scale.value = withRepeat(withTiming(motion.ring.to, { duration: motion.ring.duration, easing: Easing.out(Easing.ease) }), -1);
     opacity.value = withRepeat(withTiming(0, { duration: motion.ring.duration, easing: Easing.out(Easing.ease) }), -1);
+    return () => {
+      cancelAnimation(scale);
+      cancelAnimation(opacity);
+    };
   }, [reducedMotion]);
 
   const style = useAnimatedStyle(() => ({
@@ -55,23 +71,25 @@ export default function FirstTaskScreen() {
       <OnboardingProgress step={5} totalSteps={TOTAL_STEPS} onBack={() => router.replace('/(onboarding)/microfono')} />
 
       <View style={styles.content}>
-        <MascotStage height={236} mascotSize={204} mood="listening" label="Poli escuchando, con la caracola vacía">
-          <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>¡Cuéntame!</Text>
-          </View>
-        </MascotStage>
+        <Animated.View entering={ENTER_1}>
+          <MascotStage height={236} mascotSize={204} mood="listening" label="Poli escuchando, con la caracola vacía">
+            <View style={styles.bubble}>
+              <Text style={styles.bubbleText}>¡Cuéntame!</Text>
+            </View>
+          </MascotStage>
+        </Animated.View>
 
-        <View style={styles.copy}>
+        <Animated.View entering={ENTER_2} style={styles.copy}>
           <Text style={styles.title}>Dime qué tienes para hoy</Text>
           <Text style={styles.body}>Toca el micrófono y habla con naturalidad.</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.suggest}>
+        <Animated.View entering={ENTER_3} style={styles.suggest}>
           <Text style={styles.suggestLabel}>Prueba decir</Text>
           <Text style={styles.suggestBody}>«Hoy tengo que pagar la luz y llamar al dentista.»</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.footer}>
+        <Animated.View entering={ENTER_4} style={styles.footer}>
           <View style={styles.recordWrap}>
             <PulseRing />
             <Pressable onPress={startRecording} accessibilityRole="button" accessibilityLabel="Empezar a grabar" style={styles.record}>
@@ -86,7 +104,7 @@ export default function FirstTaskScreen() {
               <Button label="Lo haré después" variant="flat" small onPress={doItLater} />
             </View>
           </View>
-        </View>
+        </Animated.View>
       </View>
     </View>
   );

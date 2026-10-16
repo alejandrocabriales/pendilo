@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius, space, type } from '../theme/tokens';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { colors, easing, radius, space, type } from '../theme/tokens';
 import { PoliMascot } from './PoliMascot';
 import { Button } from './Button';
 import type { Mood } from '../types/domain';
+
+const ENTER = FadeIn.duration(220).easing(easing.easeOut);
 
 interface ActionSpec {
   label: string;
@@ -20,7 +23,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ mood = 'resting', title, body, actions, size = 72 }: EmptyStateProps) {
   return (
-    <View style={styles.container}>
+    <Animated.View entering={ENTER} style={styles.container}>
       <PoliMascot mood={mood} size={size} />
       <Text style={styles.title}>{title}</Text>
       {body ? <Text style={styles.body}>{body}</Text> : null}
@@ -29,7 +32,7 @@ export function EmptyState({ mood = 'resting', title, body, actions, size = 72 }
           <Button label={action.label} variant="secondary" onPress={action.onPress} />
         </View>
       ))}
-    </View>
+    </Animated.View>
   );
 }
 

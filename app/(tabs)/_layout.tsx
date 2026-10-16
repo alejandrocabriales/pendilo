@@ -19,7 +19,8 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      screenOptions={{ headerShown: false, animation: 'fade' }}
+      // Tabs son pares, no jerarquía, y se tocan muchas veces por sesión: sin transición (ver skill expo-animation).
+      screenOptions={{ headerShown: false, animation: 'none' }}
       tabBar={({ state, navigation }) => {
         const activeRouteName = state.routeNames[state.index];
         const active = ROUTE_TO_TAB[activeRouteName] ?? 'hoy';

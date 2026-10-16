@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, fonts, radius, space, type } from '../../../../theme/tokens';
+import { colors, easing, fonts, radius, space, type } from '../../../../theme/tokens';
 import { Button } from '../../../../components/Button';
 import { OnboardingProgress } from '../components/OnboardingProgress';
 import { MascotStage } from '../components/MascotStage';
@@ -10,6 +11,10 @@ import { useOnboarding } from '../useOnboarding';
 import { isNameValid, nameGreeting } from '../../domain/useCases';
 
 const TOTAL_STEPS = 5;
+const ENTER_1 = FadeInDown.duration(220).easing(easing.easeOut);
+const ENTER_2 = FadeInDown.duration(220).delay(60).easing(easing.easeOut);
+const ENTER_3 = FadeInDown.duration(220).delay(120).easing(easing.easeOut);
+const ENTER_4 = FadeInDown.duration(220).delay(180).easing(easing.easeOut);
 
 export default function NameScreen() {
   const insets = useSafeAreaInsets();
@@ -26,14 +31,16 @@ export default function NameScreen() {
       />
 
       <View style={styles.content}>
-        <MascotStage height={232} mascotSize={210} mood="organizing" label="Poli, con la caracola vacía" />
+        <Animated.View entering={ENTER_1}>
+          <MascotStage height={232} mascotSize={210} mood="organizing" label="Poli, con la caracola vacía" />
+        </Animated.View>
 
-        <View style={styles.copy}>
+        <Animated.View entering={ENTER_2} style={styles.copy}>
           <Text style={styles.title}>¿Cómo te llamo?</Text>
           <Text style={styles.body}>Así te saludaré cuando abras Pendilo.</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.field}>
+        <Animated.View entering={ENTER_3} style={styles.field}>
           <Text style={styles.label}>Tu nombre</Text>
           <TextInput
             value={name}
@@ -45,15 +52,15 @@ export default function NameScreen() {
             accessibilityLabel="Tu nombre"
           />
           <Text style={styles.hint}>{nameGreeting(name)}</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.cta}>
+        <Animated.View entering={ENTER_4} style={styles.cta}>
           <Button
             label="Continuar"
             onPress={() => router.replace('/(onboarding)/microfono')}
             disabled={!isNameValid(name)}
           />
-        </View>
+        </Animated.View>
       </View>
     </View>
   );

@@ -1,6 +1,15 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, withDelay, Easing } from 'react-native-reanimated';
+import { StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  withDelay,
+  cancelAnimation,
+  Easing,
+} from 'react-native-reanimated';
 import { colors, motion } from '../theme/tokens';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
@@ -25,6 +34,7 @@ function Bar({ index, reducedMotion }: { index: number; reducedMotion: boolean }
         -1
       )
     );
+    return () => cancelAnimation(scaleY);
   }, [reducedMotion]);
 
   const style = useAnimatedStyle(() => ({ transform: [{ scaleY: scaleY.value }] }));
@@ -32,15 +42,35 @@ function Bar({ index, reducedMotion }: { index: number; reducedMotion: boolean }
   return <Animated.View style={[styles.bar, style]} />;
 }
 
-/** 28 barras; estáticas con posiciones fijas si "reducir movimiento" está activo. */
-export function VoiceWaveform() {
+interface VoiceWaveformProps {
+  /** Transcript revelado hasta el momento; cada palabra nueva da un pulso de energía a las barras. */
+  transcript: string;
+}
+
+/** 28 barras; estáticas con posiciones fijas si "reducir movimiento" está activo. Pulsan al ritmo de cada palabra revelada. */
+export function VoiceWaveform({ transcript }: VoiceWaveformProps) {
   const reducedMotion = useReducedMotion();
+  const wordCount = transcript ? transcript.split(' ').length : 0;
+  const energy = useSharedValue(1);
+
+  useEffect(() => {
+    if (reducedMotion || wordCount === 0) return;
+    energy.value = withSequence(
+      withTiming(1.12, { duration: 90, easing: Easing.out(Easing.ease) }),
+      withTiming(1, { duration: 260, easing: Easing.inOut(Easing.ease) })
+    );
+  }, [wordCount, reducedMotion]);
+
+  useEffect(() => () => cancelAnimation(energy), []);
+
+  const rowStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: reducedMotion ? 1 : energy.value }] }));
+
   return (
-    <View style={styles.row} accessibilityElementsHidden importantForAccessibility="no">
+    <Animated.View style={[styles.row, rowStyle]} accessibilityElementsHidden importantForAccessibility="no">
       {Array.from({ length: BAR_COUNT }, (_, i) => (
         <Bar key={i} index={i} reducedMotion={reducedMotion} />
       ))}
-    </View>
+    </Animated.View>
   );
 }
 

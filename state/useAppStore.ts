@@ -4,6 +4,7 @@ import { taskRepository } from '../data/repositories/taskRepository';
 import { goalRepository, isGoalComplete, goalStep } from '../data/repositories/goalRepository';
 import { settingsRepository } from '../data/repositories/settingsRepository';
 import { fullTranscript, voiceTiming, buildDemoReview, buildReviewFromText } from '../data/mocks/voiceService';
+import { haptics } from '../lib/haptics';
 import { createId } from '../lib/id';
 import { todayISO, addDays } from '../lib/date';
 import { copy } from '../data/copy';
@@ -54,6 +55,7 @@ interface AppState {
   addQuickTask: (title: string) => Promise<void>;
   toggleTaskDone: (id: string) => Promise<void>;
   postponeTask: (id: string) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
   rescheduleTask: (id: string, date: string, minutes: number | null) => Promise<void>;
   clearIsNew: (id: string) => Promise<void>;
   dismissToast: () => void;
@@ -195,6 +197,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const updated = await taskRepository.complete(id, nextDone);
     const tasks = get().tasks.map((t) => (t.id === id ? updated : t));
     set({ tasks });
+    if (nextDone) haptics.success();
 
     if (nextDone && task.date === todayISO()) {
       const todaysTasks = tasks.filter((t) => t.date === task.date);
@@ -217,6 +220,24 @@ export const useAppStore = create<AppState>((set, get) => ({
         onUndo: async () => {
           const reverted = await taskRepository.reschedule(id, { date: before.date, minutes: before.minutes });
           set({ tasks: get().tasks.map((t) => (t.id === id ? reverted : t)), toast: null });
+        },
+      },
+    });
+  },
+
+  deleteTask: async (id) => {
+    const before = get().tasks.find((t) => t.id === id);
+    if (!before) return;
+    await taskRepository.remove(id);
+    haptics.medium();
+    set({
+      tasks: get().tasks.filter((t) => t.id !== id),
+      toast: {
+        id: createId('toast'),
+        text: `"${before.title}" se eliminó`,
+        onUndo: async () => {
+          const restored = await taskRepository.restore(before);
+          set({ tasks: [...get().tasks, restored], toast: null });
         },
       },
     });
@@ -262,6 +283,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({
       voice: { id: createId('vs'), stage: 'recording', transcript: '', elapsedSec: 0, review: [] },
     });
+    haptics.light();
 
     let wordIndex = 0;
     revealTimer = setInterval(() => {
@@ -301,10 +323,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     elapsedTimer = null;
 
     if (wordsRevealed < voiceTiming.minWordsToProcess || voice.elapsedSec < 1) {
+      haptics.warning();
       set({ voice: { ...voice, stage: 'error', error: 'silence' } });
       return;
     }
 
+    haptics.light();
     set({ voice: { ...voice, stage: 'processing' } });
     processingTimer = setTimeout(() => {
       set((state) => ({
@@ -323,6 +347,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   // en vez de depender del azar.
   devSimulateError: (kind) => {
     clearVoiceTimers();
+    haptics.warning();
     set((state) => ({ voice: { ...state.voice, stage: 'error', error: kind } }));
   },
 
@@ -461,6 +486,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       goals: [...state.goals, ...createdGoals],
       voice: { ...state.voice, stage: 'done' },
     }));
+    haptics.success();
   },
 
   acknowledgeVoiceDone: () => {
