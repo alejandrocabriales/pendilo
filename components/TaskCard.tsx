@@ -49,6 +49,8 @@ const DEFAULT_MINUTES = 9 * 60;
 const CARD_LAYOUT = LinearTransition.duration(200).easing(easing.easeInOut);
 const EXPANDED_ENTER = FadeIn.duration(160).easing(easing.easeOut);
 const EXPANDED_EXIT = FadeOut.duration(140).easing(easing.easeOut);
+// Salida al replegarse a "completadas": opacity sola (el reflow de los vecinos lo hace `layout`/`itemLayoutAnimation`).
+export const TASK_CARD_EXIT = FadeOut.duration(220).easing(easing.easeInOut);
 
 function CheckMark() {
   const scale = useSharedValue(0.3);
