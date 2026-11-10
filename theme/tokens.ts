@@ -96,6 +96,9 @@ export const motion = {
   moodChange: { duration: 220 },
   // Entrada del toast: spring.snappy (ver Toast.tsx), no timing — `visible` sigue siendo la ventana de lectura.
   toast: { visible: 4500 },
+  // Cuánto tarda una tarea recién completada en salir de "pendientes" hacia "completadas":
+  // el tiempo para ver el check antes del colapso, no una salida instantánea (ver TaskCard.tsx).
+  completeHold: { duration: 420 },
   reduced: { duration: 120 },
 } as const;
 

@@ -5,8 +5,9 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, size, space, type } from '../../theme/tokens';
 import { useAppStore } from '../../state/useAppStore';
+import { useLingeringCompletion } from '../../hooks/useLingeringCompletion';
 import { PoliMascot } from '../../components/PoliMascot';
-import { TaskCard } from '../../components/TaskCard';
+import { TaskCard, TASK_CARD_EXIT } from '../../components/TaskCard';
 import { DayCompleteCard } from '../../components/DayCompleteCard';
 import { WeekSummaryCard } from '../../components/WeekSummaryCard';
 import { IdeaPromptCard } from '../../components/IdeaPromptCard';
@@ -40,6 +41,7 @@ export default function HoyScreen() {
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [completedRevealed, setCompletedRevealed] = useState(false);
+  const lingering = useLingeringCompletion();
 
   const today = todayISO();
 
@@ -58,9 +60,9 @@ export default function HoyScreen() {
   const pending = useMemo(
     () =>
       todaysTasks
-        .filter((t) => t.status === 'pending')
+        .filter((t) => t.status === 'pending' || lingering.heldIds.has(t.id))
         .sort((a, b) => (a.minutes ?? Infinity) - (b.minutes ?? Infinity)),
-    [todaysTasks]
+    [todaysTasks, lingering.heldIds]
   );
   const allDone = todaysTasks.length > 0 && pending.length === 0;
 
@@ -85,7 +87,7 @@ export default function HoyScreen() {
   }
 
   const renderTaskCard = (item: Task) => (
-    <View key={item.id} style={styles.cardWrap}>
+    <Animated.View key={item.id} style={styles.cardWrap} exiting={TASK_CARD_EXIT}>
       <TaskCard
         task={item}
         expanded={expandedId === item.id}
@@ -96,13 +98,17 @@ export default function HoyScreen() {
           setExpandedId((id) => (id === item.id ? null : item.id));
           if (item.isNew) clearIsNew(item.id);
         }}
-        onToggleDone={() => toggleTaskDone(item.id)}
+        onToggleDone={() => {
+          if (item.status === 'pending') lingering.hold(item.id);
+          else lingering.release(item.id);
+          toggleTaskDone(item.id);
+        }}
         onPostpone={() => postponeTask(item.id)}
         onDelete={() => deleteTask(item.id)}
         onChangeDate={(date) => rescheduleTask(item.id, date, item.minutes)}
         onChangeMinutes={(minutes) => rescheduleTask(item.id, item.date, minutes)}
       />
-    </View>
+    </Animated.View>
   );
 
   const completedToggle =

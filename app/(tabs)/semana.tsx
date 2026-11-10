@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, size, space, type } from '../../theme/tokens';
 import { useAppStore } from '../../state/useAppStore';
-import { TaskCard } from '../../components/TaskCard';
+import { useLingeringCompletion } from '../../hooks/useLingeringCompletion';
+import { TaskCard, TASK_CARD_EXIT } from '../../components/TaskCard';
 import { RitmoCircle } from '../../components/RitmoCircle';
 import { ShortcutChips } from '../../components/ShortcutChips';
 import { EmptyState } from '../../components/EmptyState';
@@ -34,6 +36,7 @@ export default function SemanaScreen() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showAllPending, setShowAllPending] = useState(false);
   const [showAllDone, setShowAllDone] = useState(false);
+  const lingering = useLingeringCompletion();
 
   const dayStates = useMemo(() => buildDayCycleStates(tasks, today), [tasks, today]);
   const weekDates = useMemo(() => new Set(dayStates.map((d) => d.date)), [dayStates]);
@@ -41,8 +44,11 @@ export default function SemanaScreen() {
   const scoped = selectedDay ? weekTasks.filter((t) => t.date === selectedDay) : weekTasks;
 
   const pendingAll = useMemo(
-    () => scoped.filter((t) => t.status === 'pending').sort((a, b) => a.date.localeCompare(b.date) || (a.minutes ?? Infinity) - (b.minutes ?? Infinity)),
-    [scoped]
+    () =>
+      scoped
+        .filter((t) => t.status === 'pending' || lingering.heldIds.has(t.id))
+        .sort((a, b) => a.date.localeCompare(b.date) || (a.minutes ?? Infinity) - (b.minutes ?? Infinity)),
+    [scoped, lingering.heldIds]
   );
   const doneAll = useMemo(() => scoped.filter((t) => t.status === 'done'), [scoped]);
 
@@ -62,20 +68,24 @@ export default function SemanaScreen() {
   }
 
   const renderTask = (item: (typeof tasks)[number]) => (
-    <View key={item.id} style={styles.cardWrap}>
+    <Animated.View key={item.id} style={styles.cardWrap} exiting={TASK_CARD_EXIT}>
       <TaskCard
         task={item}
         expanded={expandedId === item.id}
         isOverdue={item.date < today && item.status === 'pending'}
         nowDate={today}
         onToggleExpand={() => setExpandedId((id) => (id === item.id ? null : item.id))}
-        onToggleDone={() => toggleTaskDone(item.id)}
+        onToggleDone={() => {
+          if (item.status === 'pending') lingering.hold(item.id);
+          else lingering.release(item.id);
+          toggleTaskDone(item.id);
+        }}
         onPostpone={() => postponeTask(item.id)}
         onDelete={() => deleteTask(item.id)}
         onChangeDate={(date) => rescheduleTask(item.id, date, item.minutes)}
         onChangeMinutes={(minutes) => rescheduleTask(item.id, item.date, minutes)}
       />
-    </View>
+    </Animated.View>
   );
 
   return (
